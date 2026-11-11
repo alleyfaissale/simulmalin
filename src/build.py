@@ -5,6 +5,8 @@ SITE = "SimulMalin"
 DOMAIN = "https://simulmalin.fr"  # À remplacer par le vrai domaine
 AD = '<div class="ad-slot" aria-hidden="true">Publicité</div>'
 
+def fr(n,d=0): return f"{n:,.{d}f}".replace(",","\u202f").replace(".",",")
+
 def page(slug, title, desc, body, faq=None, script=""):
     ld = []
     if faq:
@@ -79,18 +81,40 @@ urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, c
 <div class="card"><strong>Confidentiel</strong><p>Vos chiffres restent dans votre navigateur : rien n'est envoyé ni enregistré.</p></div></div>"""))
 
 # ---------- SALAIRE ----------
+# Barèmes 2026 (sources : URSSAF, Agirc-Arrco, service-public.fr). PMSS 2026 = 4 005 €.
+PMSS = 4005
+SMIC = 1867.02  # SMIC mensuel brut 35 h depuis le 1er juin 2026
+def cotis(b, st):
+    """Cotisations salariales mensuelles (hors mutuelle) pour un brut mensuel b.
+    st : 'nc' non-cadre, 'c' cadre, 'fp' fonctionnaire titulaire (primes = 20 % du brut)."""
+    csg = 0.097 * (0.9825 * min(b, 4*PMSS) + max(b - 4*PMSS, 0))  # CSG 9,20 % + CRDS 0,50 %
+    if st == 'fp':
+        ti = 0.8 * b  # traitement indiciaire
+        return 0.111 * ti + 0.05 * min(b - ti, 0.2 * ti) + csg  # pension civile/CNRACL 11,10 % + RAFP 5 %
+    t1 = min(b, PMSS); t2 = min(max(b - PMSS, 0), 7*PMSS)
+    c = 0.069*t1 + 0.004*b + (0.0315 + 0.0086)*t1 + (0.0864 + 0.0108)*t2 + csg
+    if b > PMSS: c += 0.0014 * (t1 + t2)  # CET
+    if st == 'c': c += 0.00024 * min(b, 4*PMSS)  # APEC
+    return c
+def net(b, st): return b - cotis(b, st)
+COTIS_JS = """const P=4005;function cotis(b,st){const csg=0.097*(0.9825*Math.min(b,4*P)+Math.max(b-4*P,0));
+if(st==='fp'){const ti=0.8*b;return 0.111*ti+0.05*Math.min(b-ti,0.2*ti)+csg}
+const t1=Math.min(b,P),t2=Math.min(Math.max(b-P,0),7*P);let c=0.069*t1+0.004*b+0.0401*t1+0.0972*t2+csg;
+if(b>P)c+=0.0014*(t1+t2);if(st==='c')c+=0.00024*Math.min(b,4*P);return c}"""
+
 urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gratuit et instantané",
- "Convertissez votre salaire brut en net (et net en brut) pour 2026 : cadre, non-cadre, fonction publique. Mensuel, annuel, horaire, avec prélèvement à la source.",
+ "Convertissez votre salaire brut en net (et net en brut) avec les taux de cotisations 2026 : cadre, non-cadre, fonction publique. Mensuel, annuel, horaire, avec prélèvement à la source.",
  """<h1>Calcul salaire brut en net 2026</h1>
-<p class="lead">Saisissez un montant brut ou net : l'autre se calcule automatiquement.</p>
+<p class="lead">Saisissez un montant brut ou net : l'autre se calcule automatiquement avec les taux de cotisations 2026.</p>
 <div class="card">
 <div class="row"><div><label for="statut">Statut</label><select id="statut">
-<option value="0.22">Salarié non-cadre (≈ 22 %)</option><option value="0.25">Salarié cadre (≈ 25 %)</option>
-<option value="0.15">Fonction publique (≈ 15 %)</option></select></div>
+<option value="nc">Salarié non-cadre (privé)</option><option value="c">Salarié cadre (privé)</option>
+<option value="fp">Fonctionnaire titulaire</option></select></div>
 <div><label for="periode">Période</label><select id="periode"><option value="1">Mensuel</option><option value="12">Annuel</option><option value="h">Horaire (35 h)</option></select></div></div>
 <div class="row"><div><label for="brut">Salaire brut (€)</label><input id="brut" type="number" inputmode="decimal" value="2500"></div>
 <div><label for="net">Salaire net avant impôt (€)</label><input id="net" type="number" inputmode="decimal"></div></div>
-<label for="pas">Taux de prélèvement à la source (%)</label><input id="pas" type="number" step="0.1" value="0">
+<div class="row"><div><label for="mut">Mutuelle et prévoyance, part salariale (€ / mois)</label><input id="mut" type="number" step="1" value="0"></div>
+<div><label for="pas">Taux de prélèvement à la source (%)</label><input id="pas" type="number" step="0.1" value="0"></div></div>
 <div class="result" aria-live="polite"><div>Net après impôt</div><div class="big" id="apres">–</div>
 <div class="kv"><span>Net mensuel avant impôt</span><b id="nm">–</b></div>
 <div class="kv"><span>Net annuel avant impôt</span><b id="na">–</b></div>
@@ -99,20 +123,24 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 """ + AD + """
 <h2>Montants les plus recherchés</h2><p class="chips">""" + "".join(f'<a href="salaire-{m}-euros-brut-en-net.html">{m} € brut</a>' for m in range(1500,5001,100)) + """</p>
 <h2>Comment passer du brut au net ?</h2>
-<p>Le salaire net correspond au salaire brut diminué des cotisations salariales (sécurité sociale, retraite, CSG/CRDS, chômage…). Leur poids dépend du statut : environ 22 % pour un non-cadre, 25 % pour un cadre et 15 % dans la fonction publique.</p>
+<p>Le salaire net correspond au salaire brut diminué des cotisations salariales. Dans le privé en 2026, elles comprennent l'assurance vieillesse (6,90 % jusqu'au plafond de la Sécurité sociale de 4 005 € par mois, plus 0,40 % sur tout le salaire), la retraite complémentaire Agirc-Arrco (3,15 % + 0,86 % jusqu'au plafond, 8,64 % + 1,08 % au-delà) et la CSG-CRDS (9,70 % sur 98,25 % du brut). Cela représente environ 21 % du brut, auxquels s'ajoute la part salariale de votre mutuelle et de votre prévoyance.</p>
+<p>Un cadre paie en plus la cotisation APEC (0,024 %) : sous le plafond de 4 005 €, son net est donc presque identique à celui d'un non-cadre. Pour un fonctionnaire titulaire, la retenue pour pension (11,10 % du traitement indiciaire), la retraite additionnelle sur les primes (5 %) et la CSG-CRDS représentent environ 19 % du brut.</p>
 <p>Depuis 2019, l'impôt sur le revenu est en plus prélevé à la source. Le montant versé sur votre compte est donc le « net après impôt ».</p>
-<p class="note">Estimation indicative : les taux réels varient selon la convention collective, la mutuelle et les avantages en nature.</p>""",
- faq=[("Combien fait 2 000 € brut en net ?","Pour un salarié non-cadre du privé, 2 000 € brut mensuel donnent environ 1 560 € net avant impôt. Pour un cadre, environ 1 500 €."),
+<p class="note">Estimation indicative avec les taux 2026 du régime général, hors mutuelle si vous ne la renseignez pas. Pour la fonction publique, le calcul suppose des primes égales à 20 % du brut. Votre fiche de paie peut différer selon votre convention collective, votre prévoyance et vos avantages en nature.</p>""",
+ faq=[("Combien fait 2 000 € brut en net ?",f"Pour un salarié du privé, cadre ou non-cadre, 2 000 € brut par mois donnent environ {fr(net(2000,'nc'))} € net avant impôt en 2026, avant la part salariale de la mutuelle d'entreprise."),
       ("Quelle différence entre net avant et après impôt ?","Le net avant impôt sert de base au prélèvement à la source. Le net après impôt est ce que vous recevez réellement sur votre compte."),
-      ("Pourquoi un cadre touche-t-il moins de net pour le même brut ?","Les cadres cotisent davantage pour la retraite complémentaire et la prévoyance, ce qui augmente leurs cotisations salariales d'environ 3 points.")],
+      ("Un cadre touche-t-il moins de net qu'un non-cadre pour le même brut ?","Presque pas sous le plafond de la Sécurité sociale (4 005 € brut par mois en 2026) : seule la cotisation APEC de 0,024 % s'ajoute. Au-delà, la part du salaire qui dépasse le plafond supporte des cotisations de retraite complémentaire plus élevées, pour les cadres comme pour les non-cadres, et la prévoyance des cadres est souvent plus chère.")],
  script="""<script>
 const $=id=>document.getElementById(id);let src='brut';
+""" + COTIS_JS + """
 function per(){const p=$('periode').value;return p==='h'?151.67:(+p===12?1/12:1)}
-function calc(){const t=+$('statut').value,f=per();
- if(src==='brut'){$('net').value=$('brut').value?(+$('brut').value*(1-t)).toFixed(2):''}else{$('brut').value=$('net').value?(+$('net').value/(1-t)).toFixed(2):''}
- const bm=+$('brut').value*(f===151.67?151.67:f),nm=bm*(1-t),pas=+$('pas').value/100;
+function brutDe(n,st){let lo=0,hi=n*2+100;for(let i=0;i<60;i++){const m=(lo+hi)/2;(m-cotis(m,st)<n)?lo=m:hi=m}return (lo+hi)/2}
+function calc(){const st=$('statut').value,f=per(),mut=+$('mut').value||0;
+ if(src==='brut'){const b=+$('brut').value*f;$('net').value=$('brut').value?((b-cotis(b,st)-mut)/f).toFixed(2):''}
+ else{const n=+$('net').value*f;$('brut').value=$('net').value?(brutDe(n+mut,st)/f).toFixed(2):''}
+ const bm=+$('brut').value*f,nm=bm-cotis(bm,st)-mut,pas=+$('pas').value/100;
  $('nm').textContent=eur2(nm);$('na').textContent=eur(nm*12);$('cot').textContent=eur2(bm-nm)+' / mois';$('apres').textContent=eur2(nm*(1-pas))+' / mois'}
-$('brut').oninput=()=>{src='brut';calc()};$('net').oninput=()=>{src='net';calc()};['statut','periode','pas'].forEach(i=>$(i).oninput=calc);calc();
+$('brut').oninput=()=>{src='brut';calc()};$('net').oninput=()=>{src='net';calc()};['statut','periode','pas','mut'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
 
 # ---------- NOTAIRE ----------
@@ -124,18 +152,20 @@ urls.append(page("frais-de-notaire", "Calcul frais de notaire 2026 : simulateur 
 <div><label for="prix">Prix d'achat du bien (€)</label><input id="prix" type="number" value="250000"></div>
 <div><label for="type">Type de bien</label><select id="type"><option value="ancien">Ancien</option><option value="neuf">Neuf (VEFA)</option></select></div></div>
 <div class="row"><div><label for="dmto">Taux du département (ancien)</label><select id="dmto">
-<option value="0.0631850">Taux relevé (5 %) – majorité des départements depuis 2025</option><option value="0.0580665">Taux normal (4,5 %)</option></select></div>
+<option value="0.0631850">Taux relevé (5 %) – 88 départements en 2026</option><option value="0.0580665">Taux de 4,5 % – autres départements et primo-accédants</option><option value="0.0509006">Taux de 3,8 % – Indre</option></select></div>
 <div><label for="mob">Mobilier inclus (€, déductible)</label><input id="mob" type="number" value="0"></div></div>
 <div class="result" aria-live="polite"><div>Frais de notaire estimés</div><div class="big" id="tot">–</div>
 <div class="kv"><span>Droits de mutation (taxes)</span><b id="d">–</b></div>
 <div class="kv"><span>Émoluments du notaire (TTC)</span><b id="e">–</b></div>
 <div class="kv"><span>Contribution de sécurité immobilière</span><b id="c">–</b></div>
-<div class="kv"><span>Débours et frais divers</span><b id="f">–</b></div>
+<div class="kv"><span>Formalités et débours (estimation)</span><b id="f">–</b></div>
 <div class="kv"><span>Part du prix</span><b id="pct">–</b></div></div></div>
 """ + AD + """
 <h2>De quoi se composent les frais de notaire ?</h2>
 <p>Malgré leur nom, près de 80 % des « frais de notaire » sont des taxes reversées à l'État et aux collectivités (droits de mutation). Le reste comprend la rémunération réglementée du notaire (émoluments, selon un barème national), la contribution de sécurité immobilière (0,10 %) et les débours avancés pour votre compte.</p>
-<p>Depuis avril 2025, la plupart des départements ont relevé leur taux de 4,5 % à 5 %. Les primo-accédants en sont exonérés dans de nombreux cas : choisissez alors le taux normal.</p>
+<p>Depuis avril 2025, les départements peuvent relever leur taux de 4,5 % à 5 % jusqu'au 31 mars 2028. Au 1er juin 2026, 88 départements l'ont fait. Les 11 autres restent à 4,5 % (Hautes-Alpes, Alpes-Maritimes, Ardèche, Charente, Drôme, Lozère, Oise, Hautes-Pyrénées, Saône-et-Loire, Guadeloupe et Mayotte) et l'Indre applique 3,8 %. À ces taux s'ajoutent la taxe communale de 1,20 % et les frais d'assiette de l'État (2,37 % du droit départemental).</p>
+<p>La hausse à 5 % ne s'applique pas aux primo-accédants, c'est-à-dire aux acheteurs qui n'ont pas été propriétaires de leur résidence principale au cours des deux dernières années et qui achètent leur future résidence principale : choisissez alors le taux de 4,5 %.</p>
+<p>Les émoluments du notaire suivent le barème national reconduit à l'identique jusqu'au 29 février 2028 : 3,870 % jusqu'à 6 500 €, 1,596 % de 6 500 à 17 000 €, 1,064 % de 17 000 à 60 000 € et 0,799 % au-delà, hors TVA de 20 %. Pour un prix d'au moins 100 000 €, le notaire peut accorder une remise de 20 % au maximum sur la part de ses émoluments calculée au-delà de 100 000 €. Les formalités et débours (cadastre, urbanisme, état hypothécaire…) sont estimés ici à 1 200 € ; le montant exact figure dans le décompte de votre notaire.</p>
 <p class="note">Estimation indicative. Seul votre notaire peut vous communiquer le montant définitif.</p>""",
  faq=[("Comment réduire ses frais de notaire ?","Vous pouvez déduire du prix la valeur du mobilier vendu avec le logement (cuisine équipée, électroménager), dans une limite raisonnable d'environ 5 % du prix."),
       ("Les frais de notaire peuvent-ils être financés par le prêt ?","Certaines banques acceptent de les financer, mais la plupart demandent qu'ils soient couverts par votre apport personnel."),
@@ -158,7 +188,7 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
 <div class="card"><div class="row">
 <div><label for="cap">Montant emprunté (€)</label><input id="cap" type="number" value="200000"></div>
 <div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="1" max="30"></div></div>
-<div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.30"></div>
+<div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.70"></div>
 <div><label for="ass">Taux d'assurance annuel (%)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
 <label for="rev">Revenus nets mensuels du foyer (€, optionnel)</label><input id="rev" type="number" value="">
 <div class="result" aria-live="polite"><div>Mensualité (assurance incluse)</div><div class="big" id="m">–</div>
@@ -171,7 +201,8 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
 <h2>Tableau d'amortissement annuel</h2><div class="tablewrap"><table id="tab"><thead><tr><th>Année</th><th>Capital remboursé</th><th>Intérêts</th><th>Capital restant</th></tr></thead><tbody></tbody></table></div>
 <h2>Comment est calculée la mensualité ?</h2>
 <p>La mensualité d'un prêt amortissable est constante : au début, elle rembourse surtout des intérêts, puis de plus en plus de capital. L'assurance emprunteur est ici calculée sur le capital initial, comme dans la plupart des contrats bancaires.</p>
-<p>Les banques limitent le taux d'endettement à 35 % des revenus, assurance comprise, et la durée à 25 ans (27 ans pour certains achats dans le neuf).</p>""",
+<p>Les banques limitent le taux d'endettement à 35 % des revenus, assurance comprise, et la durée à 25 ans (27 ans pour certains achats dans le neuf).</p>
+<p>En novembre 2026, les taux moyens hors assurance se situent autour de 3,5 à 3,9 % sur 20 à 25 ans selon les courtiers. Le taux proposé par défaut (3,70 %) est donc un point de départ : remplacez-le par celui de votre offre.</p>""",
  faq=[("Quelle mensualité pour 200 000 € sur 25 ans ?","À 3,30 % hors assurance, la mensualité est d'environ 980 €. Avec une assurance à 0,30 %, comptez environ 1 030 €."),
       ("Qu'est-ce que le taux d'endettement ?","C'est la part de vos revenus consacrée au remboursement de vos crédits. Le Haut Conseil de stabilité financière le plafonne à 35 %."),
       ("Peut-on changer d'assurance emprunteur ?","Oui, depuis la loi Lemoine de 2022, vous pouvez changer d'assurance à tout moment, ce qui permet souvent d'économiser plusieurs milliers d'euros.")],
@@ -240,7 +271,7 @@ urls.append(page("indemnite-licenciement", "Indemnité de licenciement et ruptur
 <p>Le salarié doit justifier d'au moins 8 mois d'ancienneté. L'indemnité est égale à 1/4 de mois de salaire par année d'ancienneté jusqu'à 10 ans, puis à 1/3 de mois par année au-delà. Les années incomplètes sont comptées au prorata des mois.</p>
 <p>Le salaire de référence est le plus avantageux entre la moyenne des 12 derniers mois et celle des 3 derniers mois. Votre convention collective peut prévoir un montant plus élevé : c'est alors lui qui s'applique.</p>
 <p class="note">Estimation du minimum légal hors faute grave ou lourde. Vérifiez votre convention collective.</p>""",
- faq=[("L'indemnité de rupture conventionnelle est-elle imposable ?","Elle est exonérée d'impôt sur le revenu dans la limite du montant légal ou conventionnel, sauf si vous pouvez déjà toucher une pension de retraite."),
+ faq=[("L'indemnité de rupture conventionnelle est-elle imposable ?","Elle est exonérée d'impôt sur le revenu à hauteur du plus élevé de ces montants : l'indemnité légale ou conventionnelle, deux fois votre rémunération brute de l'année précédente, ou la moitié de l'indemnité versée, dans la limite de 6 plafonds annuels de la Sécurité sociale (288 360 € en 2026). Elle est entièrement imposable si vous pouvez déjà toucher une pension de retraite."),
       ("Peut-on négocier plus que le minimum ?","Oui. Dans une rupture conventionnelle, le montant légal est un plancher : rien n'empêche de négocier davantage.")],
  script="""<script>
 const $=id=>document.getElementById(id);
@@ -273,32 +304,40 @@ document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
 </script>"""))
 
 # ---------- PAGES « X € BRUT EN NET » ----------
-STATUTS = [("Non-cadre (privé)",0.22),("Cadre (privé)",0.25),("Fonction publique",0.15)]
-def fr(n,d=0): return f"{n:,.{d}f}".replace(",","\u202f").replace(".",",")
+STATUTS = [("Non-cadre (privé)","nc"),("Cadre (privé)","c"),("Fonctionnaire titulaire","fp")]
 MONTANTS = list(range(1500,5001,100))
 def sal_slug(m): return f"salaire-{m}-euros-brut-en-net"
 for m in MONTANTS:
-    rows="".join(f"<tr><td>{st}</td><td>{fr(m*(1-t))}&nbsp;€</td><td>{fr(m*12*(1-t))}&nbsp;€</td><td>{fr(m*(1-t)/151.67,2)}&nbsp;€</td></tr>" for st,t in STATUTS)
-    nc=m*0.78
+    rows="".join(f"<tr><td>{st}</td><td>{fr(net(m,k))}&nbsp;€</td><td>{fr(net(m,k)*12)}&nbsp;€</td><td>{fr(net(m,k)/151.67,2)}&nbsp;€</td></tr>" for st,k in STATUTS)
+    nc=net(m,'nc'); ca=net(m,'c'); fp=net(m,'fp')
+    pct=cotis(m,'nc')/m*100
     voisins=" · ".join(f'<a href="{sal_slug(v)}.html">{fr(v)} € brut</a>' for v in (m-200,m-100,m+100,m+200) if v in MONTANTS)
+    smic = (f"<p>À noter : {fr(m)} € brut est inférieur au SMIC mensuel à temps plein ({fr(SMIC,2)} € brut depuis le 1er juin 2026). "
+            f"Ce montant correspond donc à un temps partiel, à un contrat d'apprentissage ou à un salaire d'avant la dernière revalorisation.</p>") if m < SMIC else ""
+    if m <= PMSS:
+        cadre_txt = (f"Pour un cadre, la seule cotisation en plus est l'APEC (0,024 %), soit environ {fr(ca)} € net : sous le plafond de la Sécurité sociale "
+                     f"({fr(PMSS)} € par mois en 2026), cadres et non-cadres touchent quasiment le même net.")
+    else:
+        cadre_txt = (f"Comme ce salaire dépasse le plafond de la Sécurité sociale ({fr(PMSS)} € par mois en 2026), la part au-delà supporte des cotisations "
+                     f"de retraite complémentaire plus élevées (8,64 % + 1,08 % + 0,14 %). Un cadre, qui paie aussi l'APEC (0,024 %), touche environ {fr(ca)} € net.")
     urls.append(page(sal_slug(m), f"{fr(m)} € brut en net : combien touche-t-on en 2026 ?",
-     f"{fr(m)} € brut par mois correspondent à environ {fr(nc)} € net pour un non-cadre en 2026. Détail cadre, fonction publique, annuel et horaire.",
+     f"{fr(m)} € brut par mois correspondent à environ {fr(nc)} € net avant impôt en 2026 dans le privé. Détail cadre, fonction publique, annuel et horaire.",
      f"""<nav class="crumb"><a href="index.html">Accueil</a> › <a href="salaire-brut-net.html">Salaire brut en net</a> › <span>{fr(m)} € brut</span> <em class="upd">Mis à jour : novembre 2026</em></nav>
 <h1>{fr(m)} € brut en net</h1>
-<p class="lead">Un salaire de <b>{fr(m)} € brut par mois</b> correspond à environ <b>{fr(nc)} € net</b> avant impôt pour un salarié non-cadre du privé.</p>
+<p class="lead">Un salaire de <b>{fr(m)} € brut par mois</b> correspond à environ <b>{fr(nc)} € net</b> avant impôt pour un salarié non-cadre du privé en 2026.</p>
 <div class="card"><div class="tablewrap"><table><thead><tr><th>Statut</th><th>Net mensuel</th><th>Net annuel</th><th>Net horaire</th></tr></thead><tbody>{rows}</tbody></table></div>
-<p class="note">Base de 35 heures par semaine (151,67 h par mois), avant prélèvement à la source.</p></div>
+<p class="note">Base de 35 heures par semaine (151,67 h par mois), avant prélèvement à la source et avant la part salariale de la mutuelle d'entreprise (souvent 20 à 60 € par mois).</p></div>
 """ + AD + f"""
 <h2>Combien touche-t-on réellement avec {fr(m)} € brut ?</h2>
-<p>Sur un salaire brut de {fr(m)} €, environ {fr(m*0.22)} € de cotisations salariales sont prélevées pour un non-cadre, et environ {fr(m*0.25)} € pour un cadre, qui cotise davantage pour sa retraite complémentaire. Dans la fonction publique, les cotisations sont plus faibles, autour de {fr(m*0.15)} €.</p>
-<p>Sur une année, {fr(m)} € brut mensuels représentent {fr(m*12)} € brut, soit environ {fr(m*12*0.78)} € net pour un non-cadre, hors primes et treizième mois.</p>
-<p>Pour un calcul personnalisé (temps partiel, taux de prélèvement à la source), utilisez notre <a href="salaire-brut-net.html">calculateur de salaire brut en net</a>.</p>
+<p>Sur un salaire brut de {fr(m)} €, un non-cadre du privé paie environ {fr(m-nc)} € de cotisations salariales, soit {fr(pct,1)} % : assurance vieillesse, retraite complémentaire Agirc-Arrco et CSG-CRDS. {cadre_txt}</p>
+<p>Un fonctionnaire titulaire paie la retenue pour pension (11,10 % du traitement indiciaire), la retraite additionnelle sur ses primes et la CSG-CRDS, soit environ {fr(fp)} € net si ses primes représentent 20 % de son brut.</p>
+{smic}<p>Sur une année, {fr(m)} € brut mensuels représentent {fr(m*12)} € brut, soit environ {fr(nc*12)} € net pour un non-cadre, hors primes et treizième mois.</p>
+<p>Pour un calcul personnalisé (temps partiel, mutuelle, taux de prélèvement à la source), utilisez notre <a href="salaire-brut-net.html">calculateur de salaire brut en net</a>.</p>
 <h2>Montants proches</h2><p>{voisins}</p>
-<p class="note">Estimation indicative fondée sur des taux moyens. Le montant exact dépend de votre convention collective, de votre mutuelle et de vos avantages.</p>""",
-     faq=[(f"{fr(m)} € brut, ça fait combien en net ?",f"Environ {fr(nc)} € net par mois pour un non-cadre, {fr(m*0.75)} € pour un cadre et {fr(m*0.85)} € dans la fonction publique."),
-          (f"Quel est le salaire net annuel pour {fr(m)} € brut par mois ?",f"Environ {fr(m*12*0.78)} € net par an pour un non-cadre, sur 12 mois.")]))
+<p class="note">Estimation indicative avec les taux de cotisations 2026 du régime général. Le montant exact dépend de votre convention collective, de votre mutuelle, de votre prévoyance et de vos avantages.</p>""",
+     faq=[(f"{fr(m)} € brut, ça fait combien en net ?",f"Environ {fr(nc)} € net par mois pour un non-cadre, {fr(ca)} € pour un cadre et {fr(fp)} € pour un fonctionnaire titulaire, avant impôt et avant mutuelle."),
+          (f"Quel est le salaire net annuel pour {fr(m)} € brut par mois ?",f"Environ {fr(nc*12)} € net par an pour un non-cadre, sur 12 mois.")]))
 
-# ---------- À PROPOS / CONTACT ----------
 page("a-propos","À propos de SimulMalin","SimulMalin propose des simulateurs gratuits et pédagogiques pour les calculs du quotidien : salaire, immobilier, crédit, TVA.",
  """<h1>À propos de SimulMalin</h1><div class="card"><p>SimulMalin est né d'un constat simple : les calculs du quotidien (salaire net, frais de notaire, mensualités de crédit…) sont souvent mal expliqués, éparpillés ou noyés sous la publicité.</p>
 <p>Notre objectif est de proposer des outils <b>gratuits, rapides et pédagogiques</b>. Chaque simulateur s'appuie sur les barèmes publics en vigueur, détaille son calcul et répond aux questions les plus fréquentes.</p>
