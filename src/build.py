@@ -43,7 +43,8 @@ TOOLS = [
   ("indemnite-licenciement","📄","Indemnité de licenciement","Minimum légal, aussi valable en rupture conventionnelle.","#fdecea")]),
  ("Immobilier", [
   ("frais-de-notaire","🏠","Frais de notaire","Estimez les frais d'achat dans l'ancien ou le neuf.","#e6f4ea"),
-  ("credit-immobilier","🏦","Crédit immobilier","Mensualités, coût total et tableau d'amortissement.","#fef7e0")]),
+  ("credit-immobilier","🏦","Crédit immobilier","Mensualités, coût total et tableau d'amortissement.","#fef7e0"),
+  ("capacite-emprunt","💰","Capacité d'emprunt","Combien pouvez-vous emprunter selon vos revenus ?","#e8f5e9")]),
  ("Outils du quotidien", [
   ("calcul-tva","🧾","Calcul de TVA","Passez du HT au TTC et inversement.","#f3e8fd"),
   ("calcul-pourcentage","📊","Pourcentages","Remise, augmentation, taux d'évolution.","#e0f7fa"),
@@ -54,6 +55,7 @@ ICONS = {
  "indemnite-licenciement":('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',"#d93025","#fdecea"),
  "frais-de-notaire":('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',"#0f9d58","#e6f4ea"),
  "credit-immobilier":('<path d="M3 21h18M5 21V10M19 21V10M9.5 21V10M14.5 21V10M2 10l10-6 10 6z"/>',"#b06000","#fef7e0"),
+ "capacite-emprunt":('<circle cx="12" cy="12" r="9"/><path d="M15 9.5a3 3 0 0 0-3-1.5c-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2a3 3 0 0 1-3-1.5M12 6v2M12 16v2"/>',"#2e7d32","#e8f5e9"),
  "calcul-tva":('<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/>',"#8430ce","#f3e8fd"),
  "calcul-pourcentage":('<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',"#007b83","#e0f7fa"),
  "jours-entre-deux-dates":('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',"#c5221f","#fce8f3"),
@@ -161,6 +163,7 @@ urls.append(page("frais-de-notaire", "Calcul frais de notaire 2026 : simulateur 
 <div class="kv"><span>Formalités et débours (estimation)</span><b id="f">–</b></div>
 <div class="kv"><span>Part du prix</span><b id="pct">–</b></div></div></div>
 """ + AD + """
+<h2>Frais de notaire par prix</h2><p class="chips">""" + "".join(f'<a href="frais-de-notaire-{p}-euros.html">{p//1000} 000 €</a>' for p in range(100000,500001,25000)) + """</p>
 <h2>De quoi se composent les frais de notaire ?</h2>
 <p>Malgré leur nom, près de 80 % des « frais de notaire » sont des taxes reversées à l'État et aux collectivités (droits de mutation). Le reste comprend la rémunération réglementée du notaire (émoluments, selon un barème national), la contribution de sécurité immobilière (0,10 %) et les débours avancés pour votre compte.</p>
 <p>Depuis avril 2025, les départements peuvent relever leur taux de 4,5 % à 5 % jusqu'au 31 mars 2028. Au 1er juin 2026, 88 départements l'ont fait. Les 11 autres restent à 4,5 % (Hautes-Alpes, Alpes-Maritimes, Ardèche, Charente, Drôme, Lozère, Oise, Hautes-Pyrénées, Saône-et-Loire, Guadeloupe et Mayotte) et l'Indre applique 3,8 %. À ces taux s'ajoutent la taxe communale de 1,20 % et les frais d'assiette de l'État (2,37 % du droit départemental).</p>
@@ -199,11 +202,12 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
 <div class="kv"><span>Taux d'endettement</span><b id="te">–</b></div></div></div>
 """ + AD + """
 <h2>Tableau d'amortissement annuel</h2><div class="tablewrap"><table id="tab"><thead><tr><th>Année</th><th>Capital remboursé</th><th>Intérêts</th><th>Capital restant</th></tr></thead><tbody></tbody></table></div>
+<h2>Simulations les plus recherchées</h2><p class="chips">""" + "".join(f'<a href="emprunter-{c}-euros-sur-{y}-ans.html">{c//1000} 000 € sur {y} ans</a>' for c in range(100000,400001,50000) for y in (20,25)) + """</p>
 <h2>Comment est calculée la mensualité ?</h2>
 <p>La mensualité d'un prêt amortissable est constante : au début, elle rembourse surtout des intérêts, puis de plus en plus de capital. L'assurance emprunteur est ici calculée sur le capital initial, comme dans la plupart des contrats bancaires.</p>
 <p>Les banques limitent le taux d'endettement à 35 % des revenus, assurance comprise, et la durée à 25 ans (27 ans pour certains achats dans le neuf).</p>
 <p>En novembre 2026, les taux moyens hors assurance se situent autour de 3,5 à 3,9 % sur 20 à 25 ans selon les courtiers. Le taux proposé par défaut (3,70 %) est donc un point de départ : remplacez-le par celui de votre offre.</p>""",
- faq=[("Quelle mensualité pour 200 000 € sur 25 ans ?","À 3,30 % hors assurance, la mensualité est d'environ 980 €. Avec une assurance à 0,30 %, comptez environ 1 030 €."),
+ faq=[("Quelle mensualité pour 200 000 € sur 25 ans ?","À 3,70 % hors assurance, la mensualité est d'environ 1 025 €. Avec une assurance à 0,30 %, comptez environ 1 075 €."),
       ("Qu'est-ce que le taux d'endettement ?","C'est la part de vos revenus consacrée au remboursement de vos crédits. Le Haut Conseil de stabilité financière le plafonne à 35 %."),
       ("Peut-on changer d'assurance emprunteur ?","Oui, depuis la loi Lemoine de 2022, vous pouvez changer d'assurance à tout moment, ce qui permet souvent d'économiser plusieurs milliers d'euros.")],
  script="""<script>
@@ -337,6 +341,109 @@ for m in MONTANTS:
 <p class="note">Estimation indicative avec les taux de cotisations 2026 du régime général. Le montant exact dépend de votre convention collective, de votre mutuelle, de votre prévoyance et de vos avantages.</p>""",
      faq=[(f"{fr(m)} € brut, ça fait combien en net ?",f"Environ {fr(nc)} € net par mois pour un non-cadre, {fr(ca)} € pour un cadre et {fr(fp)} € pour un fonctionnaire titulaire, avant impôt et avant mutuelle."),
           (f"Quel est le salaire net annuel pour {fr(m)} € brut par mois ?",f"Environ {fr(nc*12)} € net par an pour un non-cadre, sur 12 mois.")]))
+
+# ---------- CAPACITÉ D'EMPRUNT ----------
+urls.append(page("capacite-emprunt", "Capacité d'emprunt 2026 : combien pouvez-vous emprunter ?",
+ "Calculez gratuitement votre capacité d'emprunt immobilier 2026 selon vos revenus, vos charges, la durée et le taux, avec la règle des 35 % d'endettement.",
+ """<h1>Calcul de capacité d'emprunt</h1>
+<p class="lead">Combien la banque peut-elle vous prêter ? Estimation instantanée selon la règle des 35 % d'endettement.</p>
+<div class="card"><div class="row">
+<div><label for="rev">Revenus nets mensuels du foyer (€)</label><input id="rev" type="number" value="4000"></div>
+<div><label for="chg">Crédits en cours (€ / mois)</label><input id="chg" type="number" value="0"></div></div>
+<div class="row"><div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="5" max="27"></div>
+<div><label for="taux">Taux nominal (%)</label><input id="taux" type="number" step="0.01" value="3.70"></div>
+<div><label for="ass">Assurance (% par an)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
+<div class="result" aria-live="polite"><div>Vous pouvez emprunter environ</div><div class="big" id="cap">–</div>
+<div class="kv"><span>Mensualité maximale (assurance incluse)</span><b id="mm">–</b></div>
+<div class="kv"><span>Reste à vivre après mensualités</span><b id="rav">–</b></div>
+<div class="kv"><span>Budget total avec 10 % d'apport</span><b id="bud">–</b></div></div></div>
+""" + AD + """
+<h2>Comment les banques calculent-elles votre capacité d'emprunt ?</h2>
+<p>Depuis 2022, le Haut Conseil de stabilité financière (HCSF) impose aux banques deux règles : le taux d'endettement ne doit pas dépasser <b>35 % des revenus nets</b>, assurance comprise, et la durée est limitée à <b>25 ans</b> (27 ans pour un achat dans le neuf ou avec travaux importants). Les banques peuvent déroger à ces règles pour 20 % de leurs dossiers, en priorité pour la résidence principale.</p>
+<p>La mensualité maximale correspond donc à 35 % de vos revenus, moins vos crédits en cours. On en déduit le capital empruntable avec la formule d'un prêt amortissable à mensualités constantes.</p>
+<p>Le « reste à vivre » (ce qu'il vous reste une fois les crédits payés) compte aussi : avec des revenus modestes, une banque peut refuser un dossier même sous 35 %.</p>
+<p>Pour connaître le coût total et le détail année par année, utilisez notre <a href="credit-immobilier.html">simulateur de crédit immobilier</a>, puis estimez vos <a href="frais-de-notaire.html">frais de notaire</a>.</p>
+<p class="note">Estimation indicative : l'accord final dépend de votre apport, de votre stabilité professionnelle et de la politique de la banque.</p>""",
+ faq=[("Combien emprunter avec 3 000 € de salaire ?","Avec 3 000 € de revenus nets et sans autre crédit, la mensualité maximale est de 1 050 €. Sur 25 ans à 3,70 % avec 0,30 % d'assurance, cela permet d'emprunter environ 196 000 €."),
+      ("Faut-il un apport personnel ?","La plupart des banques demandent au moins 10 % du prix, pour couvrir les frais de notaire et de garantie. Sans apport, l'accord est possible mais plus difficile."),
+      ("Les revenus locatifs sont-ils pris en compte ?","Oui, en général à hauteur de 70 % des loyers perçus, pour tenir compte de la vacance et des charges.")],
+ script="""<script>
+const $=id=>document.getElementById(id);
+function calc(){const R=+$('rev').value,ch=+$('chg').value,n=Math.round(+$('duree').value*12),r=+$('taux').value/100/12,a=+$('ass').value/100/12;
+ const mm=Math.max(0,R*0.35-ch);if(!n){return}const f=r?(r/(1-Math.pow(1+r,-n))):1/n,C=mm/(f+a);
+ $('cap').textContent=eur(Math.round(C/1000)*1000);$('mm').textContent=eur2(mm);$('rav').textContent=eur(R-mm-ch)+' / mois';$('bud').textContent=eur(Math.round(C/0.9/1000)*1000)}
+['rev','chg','duree','taux','ass'].forEach(i=>$(i).oninput=calc);calc();
+</script>"""))
+
+# ---------- PAGES « FRAIS DE NOTAIRE POUR X € » ----------
+def emol(p):
+    r,prev=0,0
+    for l,x in [(6500,.0387),(17000,.01596),(60000,.01064),(float('inf'),.00799)]:
+        if p>prev: r+=(min(p,l)-prev)*x
+        prev=l
+    return r*1.2
+def notaire(p, taux):
+    d=p*taux; e=emol(p); c=max(15,p*0.001); f=1200
+    return d,e,c,f,d+e+c+f
+PRIX = list(range(100000,500001,25000))
+def not_slug(p): return f"frais-de-notaire-{p}-euros"
+for p in PRIX:
+    d5,e,c,f,t5 = notaire(p,0.0631850)
+    d45,_,_,_,t45 = notaire(p,0.0580665)
+    dn,_,_,_,tn = notaire(p,0.00715)
+    voisins=" · ".join(f'<a href="{not_slug(v)}.html">{fr(v)} €</a>' for v in (p-50000,p-25000,p+25000,p+50000) if v in PRIX)
+    urls.append(page(not_slug(p), f"Frais de notaire pour {fr(p)} € : montant exact en 2026",
+     f"Pour un achat à {fr(p)} € dans l'ancien, les frais de notaire s'élèvent à environ {fr(t5)} € en 2026 ({fr(t5/p*100,1)} %). Détail ancien, neuf et primo-accédant.",
+     f"""<nav class="crumb"><a href="index.html">Accueil</a> › <a href="frais-de-notaire.html">Frais de notaire</a> › <span>{fr(p)} €</span> <em class="upd">Mis à jour : novembre 2026</em></nav>
+<h1>Frais de notaire pour un bien à {fr(p)} €</h1>
+<p class="lead">Pour un achat à <b>{fr(p)} €</b> dans l'ancien, comptez environ <b>{fr(t5)} €</b> de frais de notaire en 2026, soit {fr(t5/p*100,1)} % du prix.</p>
+<div class="card"><div class="tablewrap"><table><thead><tr><th>Situation</th><th>Frais estimés</th><th>Part du prix</th></tr></thead><tbody>
+<tr><td>Ancien, département à 5 % (cas général)</td><td>{fr(t5)}&nbsp;€</td><td>{fr(t5/p*100,1)}&nbsp;%</td></tr>
+<tr><td>Ancien, primo-accédant ou département à 4,5 %</td><td>{fr(t45)}&nbsp;€</td><td>{fr(t45/p*100,1)}&nbsp;%</td></tr>
+<tr><td>Neuf (VEFA)</td><td>{fr(tn)}&nbsp;€</td><td>{fr(tn/p*100,1)}&nbsp;%</td></tr></tbody></table></div></div>
+""" + AD + f"""
+<h2>Détail des frais dans l'ancien</h2>
+<div class="card"><div class="kv"><span>Droits de mutation (taxes)</span><b>{fr(d5)} €</b></div>
+<div class="kv"><span>Émoluments du notaire (TTC)</span><b>{fr(e)} €</b></div>
+<div class="kv"><span>Contribution de sécurité immobilière</span><b>{fr(c)} €</b></div>
+<div class="kv"><span>Formalités et débours (estimation)</span><b>{fr(f)} €</b></div></div>
+<p>Sur les {fr(t5)} € payés, {fr(d5)} € (soit {fr(d5/t5*100,0)} %) sont des taxes reversées au département, à la commune et à l'État. La rémunération du notaire, fixée par un barème national, ne représente que {fr(e)} € TTC.</p>
+<p>Si vous achetez votre première résidence principale, vous échappez à la hausse des droits à 5 % : les frais tombent alors à environ {fr(t45)} €, soit {fr(t5-t45)} € d'économie. Dans le neuf, les droits de mutation sont réduits et les frais passent à environ {fr(tn)} €.</p>
+<p>Pour un calcul avec votre département ou du mobilier déductible, utilisez notre <a href="frais-de-notaire.html">calculateur de frais de notaire</a>. Pour savoir si vous pouvez financer ce projet, testez votre <a href="capacite-emprunt.html">capacité d'emprunt</a>.</p>
+<h2>Autres prix</h2><p>{voisins}</p>
+<p class="note">Estimation indicative fondée sur les barèmes 2026. Seul votre notaire peut communiquer le montant définitif.</p>""",
+     faq=[(f"Quels sont les frais de notaire pour {fr(p)} € ?",f"Environ {fr(t5)} € dans l'ancien (cas général), {fr(t45)} € pour un primo-accédant et {fr(tn)} € dans le neuf."),
+          ("Les frais de notaire sont-ils négociables ?","Les taxes ne le sont pas. Le notaire peut seulement accorder une remise de 20 % au maximum sur la part de ses émoluments calculée au-delà de 100 000 €.")]))
+
+# ---------- PAGES « EMPRUNTER X € SUR Y ANS » ----------
+TAUX_D={15:3.45,20:3.60,25:3.70}
+CAPITAUX=list(range(100000,400001,50000))
+def cred_slug(c,y): return f"emprunter-{c}-euros-sur-{y}-ans"
+for c in CAPITAUX:
+    for y in (15,20,25):
+        t=TAUX_D[y]; r=t/100/12; n=y*12; m=c*r/(1-(1+r)**-n); a=c*0.003/12; tot=m+a
+        interets=m*n-c; revmin=tot/0.35
+        autres=" · ".join(f'<a href="{cred_slug(c,yy)}.html">sur {yy} ans</a>' for yy in (15,20,25) if yy!=y)
+        voisins=" · ".join(f'<a href="{cred_slug(v,y)}.html">{fr(v)} €</a>' for v in (c-50000,c+50000) if v in CAPITAUX)
+        urls.append(page(cred_slug(c,y), f"Emprunter {fr(c)} € sur {y} ans : mensualité et salaire nécessaire",
+         f"Pour emprunter {fr(c)} € sur {y} ans en 2026, comptez environ {fr(tot)} € par mois assurance comprise. Salaire nécessaire, coût total et intérêts.",
+         f"""<nav class="crumb"><a href="index.html">Accueil</a> › <a href="credit-immobilier.html">Crédit immobilier</a> › <span>{fr(c)} € sur {y} ans</span> <em class="upd">Mis à jour : novembre 2026</em></nav>
+<h1>Emprunter {fr(c)} € sur {y} ans</h1>
+<p class="lead">Au taux moyen de <b>{fr(t,2)} %</b> constaté en novembre 2026, la mensualité est d'environ <b>{fr(tot)} € par mois</b>, assurance comprise.</p>
+<div class="card"><div class="kv"><span>Mensualité hors assurance</span><b>{fr(m)} €</b></div>
+<div class="kv"><span>Assurance (0,30 % par an)</span><b>{fr(a)} €</b></div>
+<div class="kv"><span>Coût total des intérêts</span><b>{fr(interets)} €</b></div>
+<div class="kv"><span>Coût total de l'assurance</span><b>{fr(a*n)} €</b></div>
+<div class="kv"><span>Revenus nets minimum (35 %)</span><b>{fr(revmin)} € / mois</b></div></div>
+""" + AD + f"""
+<h2>Quel salaire pour emprunter {fr(c)} € sur {y} ans ?</h2>
+<p>Les banques limitent le taux d'endettement à 35 % des revenus nets, assurance comprise. Pour une mensualité de {fr(tot)} €, il faut donc des revenus d'au moins <b>{fr(revmin)} € net par mois</b> pour le foyer, sans autre crédit en cours.</p>
+<p>Sur {y} ans, ce prêt vous coûtera environ {fr(interets+a*n)} € au total (intérêts et assurance), soit {fr((interets+a*n)/c*100,0)} % du montant emprunté. Allonger la durée baisse la mensualité mais augmente fortement ce coût : comparez avec {autres}.</p>
+<p>Ces calculs utilisent un taux indicatif. Pour simuler votre propre taux et voir le tableau d'amortissement, utilisez notre <a href="credit-immobilier.html">simulateur de crédit immobilier</a>.</p>
+<h2>Autres montants sur {y} ans</h2><p>{voisins}</p>
+<p class="note">Taux moyens indicatifs hors assurance en novembre 2026 : {fr(TAUX_D[15],2)} % sur 15 ans, {fr(TAUX_D[20],2)} % sur 20 ans, {fr(TAUX_D[25],2)} % sur 25 ans. Votre taux réel dépend de votre profil et de votre banque.</p>""",
+         faq=[(f"Quelle mensualité pour {fr(c)} € sur {y} ans ?",f"Environ {fr(tot)} € par mois avec une assurance à 0,30 %, au taux de {fr(t,2)} %."),
+              (f"Quel salaire pour emprunter {fr(c)} € sur {y} ans ?",f"Au moins {fr(revmin)} € net par mois pour le foyer, pour respecter le plafond d'endettement de 35 %.")]))
 
 page("a-propos","À propos de SimulMalin","SimulMalin propose des simulateurs gratuits et pédagogiques pour les calculs du quotidien : salaire, immobilier, crédit, TVA.",
  """<h1>À propos de SimulMalin</h1><div class="card"><p>SimulMalin est né d'un constat simple : les calculs du quotidien (salaire net, frais de notaire, mensualités de crédit…) sont souvent mal expliqués, éparpillés ou noyés sous la publicité.</p>
