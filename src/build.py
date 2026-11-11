@@ -14,7 +14,7 @@ def page(slug, title, desc, body, faq=None, script=""):
     faq_html = ""
     if faq:
         faq_html = "<h2>Questions fréquentes</h2>" + "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q,a in faq)
-    tool = slug not in ("index","mentions-legales","confidentialite")
+    tool = slug in ICONS
     crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
     rel = related(slug) if tool else ""
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
@@ -27,9 +27,9 @@ def page(slug, title, desc, body, faq=None, script=""):
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
 <nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
-<main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite') else ''}</main>
+<main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite','a-propos','contact') else ''}</main>
 <footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
-<a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<a href="a-propos.html">À propos</a><a href="contact.html">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
 <script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}});const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}});</script>
 {script}</body></html>"""
     open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8").write(html)
@@ -47,7 +47,19 @@ TOOLS = [
   ("calcul-pourcentage","📊","Pourcentages","Remise, augmentation, taux d'évolution.","#e0f7fa"),
   ("jours-entre-deux-dates","📅","Jours entre deux dates","Jours calendaires et jours ouvrés.","#fce8f3")]),
 ]
-def card(t): return f'<a class="tool" href="{t[0]}.html"><span class="ico" style="background:{t[4]}">{t[1]}</span><span><strong>{t[2]}</strong><small>{t[3]}</small></span></a>'
+ICONS = {
+ "salaire-brut-net":('<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>',"#1f6feb","#e8f0fe"),
+ "indemnite-licenciement":('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',"#d93025","#fdecea"),
+ "frais-de-notaire":('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',"#0f9d58","#e6f4ea"),
+ "credit-immobilier":('<path d="M3 21h18M5 21V10M19 21V10M9.5 21V10M14.5 21V10M2 10l10-6 10 6z"/>',"#b06000","#fef7e0"),
+ "calcul-tva":('<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/>',"#8430ce","#f3e8fd"),
+ "calcul-pourcentage":('<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',"#007b83","#e0f7fa"),
+ "jours-entre-deux-dates":('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',"#c5221f","#fce8f3"),
+}
+def icon(slug):
+    d,fg,bg=ICONS[slug]
+    return f'<span class="ico" style="background:{bg};color:{fg}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{d}</svg></span>'
+def card(t): return f'<a class="tool" href="{t[0]}.html">{icon(t[0])}<span><strong>{t[2]}</strong><small>{t[3]}</small></span></a>'
 def related(slug):
     allt=[t for _,l in TOOLS for t in l if t[0]!=slug][:3]
     return '<h2>Autres simulateurs utiles</h2><div class="grid">'+"".join(card(t) for t in allt)+'</div>'
@@ -62,9 +74,9 @@ urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, c
 <div class="badges"><span>✓ 100 % gratuit</span><span>✓ Barèmes 2026</span><span>✓ Aucune donnée enregistrée</span></div></section>
 """ + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
 <h2>Pourquoi utiliser SimulMalin ?</h2>
-<div class="grid why"><div class="card"><strong>⚡ Instantané</strong><p>Les résultats se mettent à jour pendant que vous tapez, sans bouton ni rechargement.</p></div>
-<div class="card"><strong>📚 Expliqué</strong><p>Chaque outil détaille son calcul et répond aux questions les plus fréquentes.</p></div>
-<div class="card"><strong>🔒 Confidentiel</strong><p>Vos chiffres restent dans votre navigateur : rien n'est envoyé ni enregistré.</p></div></div>"""))
+<div class="grid why"><div class="card"><strong>Instantané</strong><p>Les résultats se mettent à jour pendant que vous tapez, sans bouton ni rechargement.</p></div>
+<div class="card"><strong>Expliqué</strong><p>Chaque outil détaille son calcul et répond aux questions les plus fréquentes.</p></div>
+<div class="card"><strong>Confidentiel</strong><p>Vos chiffres restent dans votre navigateur : rien n'est envoyé ni enregistré.</p></div></div>"""))
 
 # ---------- SALAIRE ----------
 urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gratuit et instantané",
@@ -74,7 +86,7 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 <div class="card">
 <div class="row"><div><label for="statut">Statut</label><select id="statut">
 <option value="0.22">Salarié non-cadre (≈ 22 %)</option><option value="0.25">Salarié cadre (≈ 25 %)</option>
-<option value="0.15">Fonction publique (≈ 15 %)</option><option value="0.45">Profession libérale (≈ 45 %)</option></select></div>
+<option value="0.15">Fonction publique (≈ 15 %)</option></select></div>
 <div><label for="periode">Période</label><select id="periode"><option value="1">Mensuel</option><option value="12">Annuel</option><option value="h">Horaire (35 h)</option></select></div></div>
 <div class="row"><div><label for="brut">Salaire brut (€)</label><input id="brut" type="number" inputmode="decimal" value="2500"></div>
 <div><label for="net">Salaire net avant impôt (€)</label><input id="net" type="number" inputmode="decimal"></div></div>
@@ -85,6 +97,7 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 <div class="kv"><span>Cotisations salariales</span><b id="cot">–</b></div></div>
 </div>
 """ + AD + """
+<h2>Montants les plus recherchés</h2><p class="chips">""" + "".join(f'<a href="salaire-{m}-euros-brut-en-net.html">{m} € brut</a>' for m in range(1500,5001,100)) + """</p>
 <h2>Comment passer du brut au net ?</h2>
 <p>Le salaire net correspond au salaire brut diminué des cotisations salariales (sécurité sociale, retraite, CSG/CRDS, chômage…). Leur poids dépend du statut : environ 22 % pour un non-cadre, 25 % pour un cadre et 15 % dans la fonction publique.</p>
 <p>Depuis 2019, l'impôt sur le revenu est en plus prélevé à la source. Le montant versé sur votre compte est donc le « net après impôt ».</p>
@@ -259,16 +272,52 @@ const c=new Date($('b').value+'T12:00');if(!isNaN(c)){const r=new Date(+c+ +$('n
 document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
 </script>"""))
 
+# ---------- PAGES « X € BRUT EN NET » ----------
+STATUTS = [("Non-cadre (privé)",0.22),("Cadre (privé)",0.25),("Fonction publique",0.15)]
+def fr(n,d=0): return f"{n:,.{d}f}".replace(",","\u202f").replace(".",",")
+MONTANTS = list(range(1500,5001,100))
+def sal_slug(m): return f"salaire-{m}-euros-brut-en-net"
+for m in MONTANTS:
+    rows="".join(f"<tr><td>{st}</td><td>{fr(m*(1-t))}&nbsp;€</td><td>{fr(m*12*(1-t))}&nbsp;€</td><td>{fr(m*(1-t)/151.67,2)}&nbsp;€</td></tr>" for st,t in STATUTS)
+    nc=m*0.78
+    voisins=" · ".join(f'<a href="{sal_slug(v)}.html">{fr(v)} € brut</a>' for v in (m-200,m-100,m+100,m+200) if v in MONTANTS)
+    urls.append(page(sal_slug(m), f"{fr(m)} € brut en net : combien touche-t-on en 2026 ?",
+     f"{fr(m)} € brut par mois correspondent à environ {fr(nc)} € net pour un non-cadre en 2026. Détail cadre, fonction publique, annuel et horaire.",
+     f"""<nav class="crumb"><a href="index.html">Accueil</a> › <a href="salaire-brut-net.html">Salaire brut en net</a> › <span>{fr(m)} € brut</span> <em class="upd">Mis à jour : novembre 2026</em></nav>
+<h1>{fr(m)} € brut en net</h1>
+<p class="lead">Un salaire de <b>{fr(m)} € brut par mois</b> correspond à environ <b>{fr(nc)} € net</b> avant impôt pour un salarié non-cadre du privé.</p>
+<div class="card"><div class="tablewrap"><table><thead><tr><th>Statut</th><th>Net mensuel</th><th>Net annuel</th><th>Net horaire</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p class="note">Base de 35 heures par semaine (151,67 h par mois), avant prélèvement à la source.</p></div>
+""" + AD + f"""
+<h2>Combien touche-t-on réellement avec {fr(m)} € brut ?</h2>
+<p>Sur un salaire brut de {fr(m)} €, environ {fr(m*0.22)} € de cotisations salariales sont prélevées pour un non-cadre, et environ {fr(m*0.25)} € pour un cadre, qui cotise davantage pour sa retraite complémentaire. Dans la fonction publique, les cotisations sont plus faibles, autour de {fr(m*0.15)} €.</p>
+<p>Sur une année, {fr(m)} € brut mensuels représentent {fr(m*12)} € brut, soit environ {fr(m*12*0.78)} € net pour un non-cadre, hors primes et treizième mois.</p>
+<p>Pour un calcul personnalisé (temps partiel, taux de prélèvement à la source), utilisez notre <a href="salaire-brut-net.html">calculateur de salaire brut en net</a>.</p>
+<h2>Montants proches</h2><p>{voisins}</p>
+<p class="note">Estimation indicative fondée sur des taux moyens. Le montant exact dépend de votre convention collective, de votre mutuelle et de vos avantages.</p>""",
+     faq=[(f"{fr(m)} € brut, ça fait combien en net ?",f"Environ {fr(nc)} € net par mois pour un non-cadre, {fr(m*0.75)} € pour un cadre et {fr(m*0.85)} € dans la fonction publique."),
+          (f"Quel est le salaire net annuel pour {fr(m)} € brut par mois ?",f"Environ {fr(m*12*0.78)} € net par an pour un non-cadre, sur 12 mois.")]))
+
+# ---------- À PROPOS / CONTACT ----------
+page("a-propos","À propos de SimulMalin","SimulMalin propose des simulateurs gratuits et pédagogiques pour les calculs du quotidien : salaire, immobilier, crédit, TVA.",
+ """<h1>À propos de SimulMalin</h1><div class="card"><p>SimulMalin est né d'un constat simple : les calculs du quotidien (salaire net, frais de notaire, mensualités de crédit…) sont souvent mal expliqués, éparpillés ou noyés sous la publicité.</p>
+<p>Notre objectif est de proposer des outils <b>gratuits, rapides et pédagogiques</b>. Chaque simulateur s'appuie sur les barèmes publics en vigueur, détaille son calcul et répond aux questions les plus fréquentes.</p>
+<p>Nos outils fournissent des estimations : pour une décision importante, rapprochez-vous toujours d'un professionnel (notaire, banque, conseiller). Une erreur ou une suggestion ? <a href="contact.html">Écrivez-nous</a>, nous corrigeons rapidement.</p></div>""")
+page("contact","Contact – SimulMalin","Contactez l'équipe SimulMalin pour signaler une erreur, proposer un nouveau simulateur ou toute autre demande.",
+ """<h1>Contact</h1><div class="card"><p>Une erreur dans un calcul, une idée de nouveau simulateur, une demande de partenariat ? Écrivez-nous :</p>
+<p class="big" style="font-size:1.3rem"><a href="mailto:contact@simulmalin.fr">contact@simulmalin.fr</a></p><p class="note">Nous répondons généralement sous 48 heures ouvrées.</p></div>""")
+
 # ---------- LÉGAL ----------
 page("mentions-legales","Mentions légales – SimulMalin","Mentions légales du site SimulMalin.",
- """<h1>Mentions légales</h1><div class="card"><p><b>Éditeur :</b> [Nom et prénom ou raison sociale], [adresse], [e-mail de contact]. Statut : [particulier / micro-entreprise, SIRET].</p>
-<p><b>Directeur de la publication :</b> [Nom].</p><p><b>Hébergeur :</b> [Nom de l'hébergeur, adresse, téléphone].</p>
+ """<h1>Mentions légales</h1><div class="card"><p><b>Éditeur :</b> [Nom et prénom ou raison sociale], [adresse], contact@simulmalin.fr. Statut : [particulier / micro-entreprise, SIRET].</p>
+<p><b>Directeur de la publication :</b> [Nom].</p><p><b>Hébergeur :</b> GitHub, Inc. (GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
 <p><b>Responsabilité :</b> les calculs proposés sont fournis à titre indicatif. Ils ne constituent ni un conseil juridique, ni un conseil financier.</p></div>""")
 page("confidentialite","Confidentialité et cookies – SimulMalin","Politique de confidentialité et de cookies de SimulMalin.",
  """<h1>Confidentialité et cookies</h1><div class="card"><p>Les données saisies dans nos calculateurs restent dans votre navigateur et ne sont jamais transmises à nos serveurs.</p>
 <p>Ce site affiche de la publicité via des partenaires (par exemple Google AdSense) qui peuvent déposer des cookies pour personnaliser les annonces. Conformément au RGPD, votre consentement est demandé via le bandeau de gestion des cookies, et vous pouvez le retirer à tout moment.</p>
-<p>Pour toute question : [e-mail de contact].</p></div>""")
+<p>Pour toute question : contact@simulmalin.fr.</p></div>""")
 
+urls += [f"{DOMAIN}/a-propos.html", f"{DOMAIN}/contact.html"]
 open(os.path.join(ROOT,"sitemap.xml"),"w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"".join(f"<url><loc>{u}</loc></url>" for u in urls)+"</urlset>\n")
 open(os.path.join(ROOT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n")
 open(os.path.join(ROOT,"ads.txt"),"w").write("# Ajouter ici la ligne fournie par Google AdSense, ex. : google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0\n")
