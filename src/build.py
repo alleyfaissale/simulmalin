@@ -309,8 +309,9 @@ page("contact","Contact – SimulMalin","Contactez l'équipe SimulMalin pour sig
 
 # ---------- LÉGAL ----------
 page("mentions-legales","Mentions légales – SimulMalin","Mentions légales du site SimulMalin.",
- """<h1>Mentions légales</h1><div class="card"><p><b>Éditeur :</b> [Nom et prénom ou raison sociale], [adresse], contact@simulmalin.fr. Statut : [particulier / micro-entreprise, SIRET].</p>
-<p><b>Directeur de la publication :</b> [Nom].</p><p><b>Hébergeur :</b> GitHub, Inc. (GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
+ """<h1>Mentions légales</h1><div class="card"><p><b>Éditeur du site :</b> SimulMalin. Contact : <a href="mailto:contact@simulmalin.fr">contact@simulmalin.fr</a>.</p>
+<p><b>Directeur de la publication :</b> l'équipe SimulMalin, joignable à la même adresse.</p>
+<p><b>Propriété intellectuelle :</b> les textes et outils de ce site sont la propriété de SimulMalin. Toute reproduction sans autorisation est interdite.</p><p><b>Hébergeur :</b> GitHub, Inc. (GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</p>
 <p><b>Responsabilité :</b> les calculs proposés sont fournis à titre indicatif. Ils ne constituent ni un conseil juridique, ni un conseil financier.</p></div>""")
 page("confidentialite","Confidentialité et cookies – SimulMalin","Politique de confidentialité et de cookies de SimulMalin.",
  """<h1>Confidentialité et cookies</h1><div class="card"><p>Les données saisies dans nos calculateurs restent dans votre navigateur et ne sont jamais transmises à nos serveurs.</p>
