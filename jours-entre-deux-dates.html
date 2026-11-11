@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nombre de jours entre deux dates : calculateur gratuit</title><meta name="description" content="Calculez le nombre de jours, de semaines et de jours ouvrés entre deux dates, ou ajoutez des jours à une date. Outil gratuit et instantané."><link rel="canonical" href="https://simulmalin.fr/jours-entre-deux-dates.html">
+<meta property="og:title" content="Nombre de jours entre deux dates : calculateur gratuit"><meta property="og:description" content="Calculez le nombre de jours, de semaines et de jours ouvrés entre deux dates, ou ajoutez des jours à une date. Outil gratuit et instantané."><meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "La date de fin est-elle comptée ?", "acceptedAnswer": {"@type": "Answer", "text": "Non, le calcul donne l'écart entre les deux dates. Ajoutez 1 si vous voulez inclure les deux jours."}}, {"@type": "Question", "name": "Quelle différence entre jours ouvrés et ouvrables ?", "acceptedAnswer": {"@type": "Answer", "text": "Les jours ouvrés vont du lundi au vendredi. Les jours ouvrables incluent aussi le samedi."}}]}</script>
+<!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
+</head><body>
+<header><div class="wrap"><a class="logo" href="index.html">Simul<span>Malin</span></a>
+<nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
+<main class="wrap"><h1>Nombre de jours entre deux dates</h1><p class="lead">Jours calendaires, semaines et jours ouvrés (hors week-ends).</p>
+<div class="card"><div class="row"><div><label for="d1">Date de début</label><input id="d1" type="date"></div><div><label for="d2">Date de fin</label><input id="d2" type="date"></div></div>
+<div class="result" aria-live="polite"><div>Écart</div><div class="big" id="j">–</div>
+<div class="kv"><span>En semaines</span><b id="s">–</b></div><div class="kv"><span>Jours ouvrés (lundi au vendredi)</span><b id="o">–</b></div></div></div>
+<div class="ad-slot" aria-hidden="true">Publicité</div>
+<div class="card"><h2 style="margin-top:0">Ajouter ou retirer des jours</h2><div class="row"><div><label for="b">Date</label><input id="b" type="date"></div><div><label for="n">Nombre de jours (négatif pour retirer)</label><input id="n" type="number" value="90"></div></div>
+<div class="result"><div class="big" id="res">–</div></div></div>
+<p class="note">Les jours fériés ne sont pas déduits du nombre de jours ouvrés.</p><h2>Questions fréquentes</h2><details><summary>La date de fin est-elle comptée ?</summary><p>Non, le calcul donne l'écart entre les deux dates. Ajoutez 1 si vous voulez inclure les deux jours.</p></details><details><summary>Quelle différence entre jours ouvrés et ouvrables ?</summary><p>Les jours ouvrés vont du lundi au vendredi. Les jours ouvrables incluent aussi le samedi.</p></details><div class="ad-slot" aria-hidden="true">Publicité</div></main>
+<footer><div class="wrap"><p>© 2026 SimulMalin. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
+<a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<script>const eur=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});const eur2=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});</script>
+<script>
+const $=id=>document.getElementById(id),D=864e5,iso=d=>d.toISOString().slice(0,10);const t=new Date();$('d1').value=iso(t);$('d2').value=iso(new Date(t.getFullYear(),11,31,12));$('b').value=iso(t);
+function calc(){const a=new Date($('d1').value+'T12:00'),b=new Date($('d2').value+'T12:00');if(!isNaN(a)&&!isNaN(b)){const n=Math.round((b-a)/D);
+$('j').textContent=n.toLocaleString('fr-FR')+' jours';$('s').textContent=(n/7).toLocaleString('fr-FR',{maximumFractionDigits:1});
+let o=0,s=Math.sign(n);for(let i=0;i<Math.abs(n);i++){const d=new Date(+a+s*(i+(s>0?1:0))*D).getDay();if(d%6)o++}$('o').textContent=o}
+const c=new Date($('b').value+'T12:00');if(!isNaN(c)){const r=new Date(+c+ +$('n').value*D);$('res').textContent=r.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}}
+document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
+</script></body></html>

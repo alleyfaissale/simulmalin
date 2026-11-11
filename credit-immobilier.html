@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulateur crédit immobilier 2026 : mensualités et coût total</title><meta name="description" content="Calculez gratuitement vos mensualités de crédit immobilier, le coût total des intérêts et de l'assurance, et votre tableau d'amortissement année par année."><link rel="canonical" href="https://simulmalin.fr/credit-immobilier.html">
+<meta property="og:title" content="Simulateur crédit immobilier 2026 : mensualités et coût total"><meta property="og:description" content="Calculez gratuitement vos mensualités de crédit immobilier, le coût total des intérêts et de l'assurance, et votre tableau d'amortissement année par année."><meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Quelle mensualité pour 200 000 € sur 25 ans ?", "acceptedAnswer": {"@type": "Answer", "text": "À 3,30 % hors assurance, la mensualité est d'environ 980 €. Avec une assurance à 0,30 %, comptez environ 1 030 €."}}, {"@type": "Question", "name": "Qu'est-ce que le taux d'endettement ?", "acceptedAnswer": {"@type": "Answer", "text": "C'est la part de vos revenus consacrée au remboursement de vos crédits. Le Haut Conseil de stabilité financière le plafonne à 35 %."}}, {"@type": "Question", "name": "Peut-on changer d'assurance emprunteur ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui, depuis la loi Lemoine de 2022, vous pouvez changer d'assurance à tout moment, ce qui permet souvent d'économiser plusieurs milliers d'euros."}}]}</script>
+<!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
+</head><body>
+<header><div class="wrap"><a class="logo" href="index.html">Simul<span>Malin</span></a>
+<nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
+<main class="wrap"><h1>Simulateur de crédit immobilier</h1>
+<p class="lead">Mensualité, coût total et tableau d'amortissement, mis à jour en direct.</p>
+<div class="card"><div class="row">
+<div><label for="cap">Montant emprunté (€)</label><input id="cap" type="number" value="200000"></div>
+<div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="1" max="30"></div></div>
+<div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.30"></div>
+<div><label for="ass">Taux d'assurance annuel (%)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
+<label for="rev">Revenus nets mensuels du foyer (€, optionnel)</label><input id="rev" type="number" value="">
+<div class="result" aria-live="polite"><div>Mensualité (assurance incluse)</div><div class="big" id="m">–</div>
+<div class="kv"><span>Dont assurance</span><b id="ma">–</b></div>
+<div class="kv"><span>Coût total des intérêts</span><b id="ci">–</b></div>
+<div class="kv"><span>Coût total de l'assurance</span><b id="ca">–</b></div>
+<div class="kv"><span>Coût total du crédit</span><b id="ct">–</b></div>
+<div class="kv"><span>Taux d'endettement</span><b id="te">–</b></div></div></div>
+<div class="ad-slot" aria-hidden="true">Publicité</div>
+<h2>Tableau d'amortissement annuel</h2><div class="tablewrap"><table id="tab"><thead><tr><th>Année</th><th>Capital remboursé</th><th>Intérêts</th><th>Capital restant</th></tr></thead><tbody></tbody></table></div>
+<h2>Comment est calculée la mensualité ?</h2>
+<p>La mensualité d'un prêt amortissable est constante : au début, elle rembourse surtout des intérêts, puis de plus en plus de capital. L'assurance emprunteur est ici calculée sur le capital initial, comme dans la plupart des contrats bancaires.</p>
+<p>Les banques limitent le taux d'endettement à 35 % des revenus, assurance comprise, et la durée à 25 ans (27 ans pour certains achats dans le neuf).</p><h2>Questions fréquentes</h2><details><summary>Quelle mensualité pour 200 000 € sur 25 ans ?</summary><p>À 3,30 % hors assurance, la mensualité est d'environ 980 €. Avec une assurance à 0,30 %, comptez environ 1 030 €.</p></details><details><summary>Qu'est-ce que le taux d'endettement ?</summary><p>C'est la part de vos revenus consacrée au remboursement de vos crédits. Le Haut Conseil de stabilité financière le plafonne à 35 %.</p></details><details><summary>Peut-on changer d'assurance emprunteur ?</summary><p>Oui, depuis la loi Lemoine de 2022, vous pouvez changer d'assurance à tout moment, ce qui permet souvent d'économiser plusieurs milliers d'euros.</p></details><div class="ad-slot" aria-hidden="true">Publicité</div></main>
+<footer><div class="wrap"><p>© 2026 SimulMalin. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
+<a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<script>const eur=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});const eur2=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});</script>
+<script>
+const $=id=>document.getElementById(id);
+function calc(){const C=+$('cap').value,n=Math.round(+$('duree').value*12),r=+$('taux').value/100/12,a=C*(+$('ass').value/100)/12;
+ if(!C||!n)return;const m=r?C*r/(1-Math.pow(1+r,-n)):C/n,tot=m+a;
+ $('m').textContent=eur2(tot);$('ma').textContent=eur2(a);$('ci').textContent=eur(m*n-C);$('ca').textContent=eur(a*n);$('ct').textContent=eur(m*n-C+a*n);
+ const rev=+$('rev').value;$('te').textContent=rev?(tot/rev*100).toFixed(1)+' %'+(tot/rev>0.35?' (au-delà de 35 %)':''):'Renseignez vos revenus';
+ let k=C,rows='';for(let y=1;y*12<=n+11&&k>0.5;y++){let cp=0,it=0;for(let i=0;i<12&&k>0.5;i++){const x=k*r,p=m-x;it+=x;cp+=p;k-=p}rows+=`<tr><td>${y}</td><td>${eur(cp)}</td><td>${eur(it)}</td><td>${eur(Math.max(0,k))}</td></tr>`}
+ document.querySelector('#tab tbody').innerHTML=rows}
+['cap','duree','taux','ass','rev'].forEach(i=>$(i).oninput=calc);calc();
+</script></body></html>

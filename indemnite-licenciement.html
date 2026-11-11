@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Indemnité de licenciement et rupture conventionnelle 2026 : calcul</title><meta name="description" content="Calculez le montant minimum légal de votre indemnité de licenciement ou de rupture conventionnelle selon votre ancienneté et votre salaire de référence."><link rel="canonical" href="https://simulmalin.fr/indemnite-licenciement.html">
+<meta property="og:title" content="Indemnité de licenciement et rupture conventionnelle 2026 : calcul"><meta property="og:description" content="Calculez le montant minimum légal de votre indemnité de licenciement ou de rupture conventionnelle selon votre ancienneté et votre salaire de référence."><meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "L'indemnité de rupture conventionnelle est-elle imposable ?", "acceptedAnswer": {"@type": "Answer", "text": "Elle est exonérée d'impôt sur le revenu dans la limite du montant légal ou conventionnel, sauf si vous pouvez déjà toucher une pension de retraite."}}, {"@type": "Question", "name": "Peut-on négocier plus que le minimum ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui. Dans une rupture conventionnelle, le montant légal est un plancher : rien n'empêche de négocier davantage."}}]}</script>
+<!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
+</head><body>
+<header><div class="wrap"><a class="logo" href="index.html">Simul<span>Malin</span></a>
+<nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
+<main class="wrap"><h1>Calcul de l'indemnité de licenciement ou de rupture conventionnelle</h1>
+<p class="lead">Montant minimum légal, applicable aussi à la rupture conventionnelle.</p>
+<div class="card"><div class="row"><div><label for="sal">Salaire brut mensuel de référence (€)</label><input id="sal" type="number" value="2800"></div>
+<div><label for="ans">Ancienneté (années)</label><input id="ans" type="number" value="6"></div><div><label for="mois">+ mois</label><input id="mois" type="number" value="0" min="0" max="11"></div></div>
+<div class="result" aria-live="polite"><div>Indemnité légale minimum</div><div class="big" id="ind">–</div><p class="note" id="msg"></p></div></div>
+<div class="ad-slot" aria-hidden="true">Publicité</div>
+<h2>Comment est calculée l'indemnité légale ?</h2>
+<p>Le salarié doit justifier d'au moins 8 mois d'ancienneté. L'indemnité est égale à 1/4 de mois de salaire par année d'ancienneté jusqu'à 10 ans, puis à 1/3 de mois par année au-delà. Les années incomplètes sont comptées au prorata des mois.</p>
+<p>Le salaire de référence est le plus avantageux entre la moyenne des 12 derniers mois et celle des 3 derniers mois. Votre convention collective peut prévoir un montant plus élevé : c'est alors lui qui s'applique.</p>
+<p class="note">Estimation du minimum légal hors faute grave ou lourde. Vérifiez votre convention collective.</p><h2>Questions fréquentes</h2><details><summary>L'indemnité de rupture conventionnelle est-elle imposable ?</summary><p>Elle est exonérée d'impôt sur le revenu dans la limite du montant légal ou conventionnel, sauf si vous pouvez déjà toucher une pension de retraite.</p></details><details><summary>Peut-on négocier plus que le minimum ?</summary><p>Oui. Dans une rupture conventionnelle, le montant légal est un plancher : rien n'empêche de négocier davantage.</p></details><div class="ad-slot" aria-hidden="true">Publicité</div></main>
+<footer><div class="wrap"><p>© 2026 SimulMalin. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
+<a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<script>const eur=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});const eur2=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});</script>
+<script>
+const $=id=>document.getElementById(id);
+function calc(){const s=+$('sal').value,a=+$('ans').value+ +$('mois').value/12;
+if(a<8/12){$('ind').textContent=eur(0);$('msg').textContent="Moins de 8 mois d'ancienneté : pas d'indemnité légale.";return}
+const i=s*(Math.min(a,10)/4+Math.max(0,a-10)/3);$('ind').textContent=eur(i);$('msg').textContent='Soit '+(i/s).toLocaleString('fr-FR',{maximumFractionDigits:2})+' mois de salaire.'}
+['sal','ans','mois'].forEach(i=>$(i).oninput=calc);calc();
+</script></body></html>

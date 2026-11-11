@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcul frais de notaire 2026 : simulateur ancien et neuf</title><meta name="description" content="Estimez vos frais de notaire 2026 pour un achat immobilier dans l'ancien ou le neuf : droits de mutation, émoluments, débours. Détail complet et gratuit."><link rel="canonical" href="https://simulmalin.fr/frais-de-notaire.html">
+<meta property="og:title" content="Calcul frais de notaire 2026 : simulateur ancien et neuf"><meta property="og:description" content="Estimez vos frais de notaire 2026 pour un achat immobilier dans l'ancien ou le neuf : droits de mutation, émoluments, débours. Détail complet et gratuit."><meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Comment réduire ses frais de notaire ?", "acceptedAnswer": {"@type": "Answer", "text": "Vous pouvez déduire du prix la valeur du mobilier vendu avec le logement (cuisine équipée, électroménager), dans une limite raisonnable d'environ 5 % du prix."}}, {"@type": "Question", "name": "Les frais de notaire peuvent-ils être financés par le prêt ?", "acceptedAnswer": {"@type": "Answer", "text": "Certaines banques acceptent de les financer, mais la plupart demandent qu'ils soient couverts par votre apport personnel."}}, {"@type": "Question", "name": "Pourquoi les frais sont-ils plus bas dans le neuf ?", "acceptedAnswer": {"@type": "Answer", "text": "Dans le neuf, l'acheteur paie la TVA incluse dans le prix ; les droits de mutation sont donc réduits à environ 0,7 %."}}]}</script>
+<!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
+</head><body>
+<header><div class="wrap"><a class="logo" href="index.html">Simul<span>Malin</span></a>
+<nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
+<main class="wrap"><h1>Calcul des frais de notaire 2026</h1>
+<p class="lead">Environ 7 à 8 % du prix dans l'ancien, 2 à 3 % dans le neuf. Obtenez le détail exact.</p>
+<div class="card"><div class="row">
+<div><label for="prix">Prix d'achat du bien (€)</label><input id="prix" type="number" value="250000"></div>
+<div><label for="type">Type de bien</label><select id="type"><option value="ancien">Ancien</option><option value="neuf">Neuf (VEFA)</option></select></div></div>
+<div class="row"><div><label for="dmto">Taux du département (ancien)</label><select id="dmto">
+<option value="0.0631850">Taux relevé (5 %) – majorité des départements depuis 2025</option><option value="0.0580665">Taux normal (4,5 %)</option></select></div>
+<div><label for="mob">Mobilier inclus (€, déductible)</label><input id="mob" type="number" value="0"></div></div>
+<div class="result" aria-live="polite"><div>Frais de notaire estimés</div><div class="big" id="tot">–</div>
+<div class="kv"><span>Droits de mutation (taxes)</span><b id="d">–</b></div>
+<div class="kv"><span>Émoluments du notaire (TTC)</span><b id="e">–</b></div>
+<div class="kv"><span>Contribution de sécurité immobilière</span><b id="c">–</b></div>
+<div class="kv"><span>Débours et frais divers</span><b id="f">–</b></div>
+<div class="kv"><span>Part du prix</span><b id="pct">–</b></div></div></div>
+<div class="ad-slot" aria-hidden="true">Publicité</div>
+<h2>De quoi se composent les frais de notaire ?</h2>
+<p>Malgré leur nom, près de 80 % des « frais de notaire » sont des taxes reversées à l'État et aux collectivités (droits de mutation). Le reste comprend la rémunération réglementée du notaire (émoluments, selon un barème national), la contribution de sécurité immobilière (0,10 %) et les débours avancés pour votre compte.</p>
+<p>Depuis avril 2025, la plupart des départements ont relevé leur taux de 4,5 % à 5 %. Les primo-accédants en sont exonérés dans de nombreux cas : choisissez alors le taux normal.</p>
+<p class="note">Estimation indicative. Seul votre notaire peut vous communiquer le montant définitif.</p><h2>Questions fréquentes</h2><details><summary>Comment réduire ses frais de notaire ?</summary><p>Vous pouvez déduire du prix la valeur du mobilier vendu avec le logement (cuisine équipée, électroménager), dans une limite raisonnable d'environ 5 % du prix.</p></details><details><summary>Les frais de notaire peuvent-ils être financés par le prêt ?</summary><p>Certaines banques acceptent de les financer, mais la plupart demandent qu'ils soient couverts par votre apport personnel.</p></details><details><summary>Pourquoi les frais sont-ils plus bas dans le neuf ?</summary><p>Dans le neuf, l'acheteur paie la TVA incluse dans le prix ; les droits de mutation sont donc réduits à environ 0,7 %.</p></details><div class="ad-slot" aria-hidden="true">Publicité</div></main>
+<footer><div class="wrap"><p>© 2026 SimulMalin. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
+<a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<script>const eur=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});const eur2=n=>n.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});</script>
+<script>
+const $=id=>document.getElementById(id);
+function emol(p){const t=[[6500,.0387],[17000,.01596],[60000,.01064],[Infinity,.00799]];let r=0,prev=0;for(const[l,x]of t){if(p>prev)r+=(Math.min(p,l)-prev)*x;prev=l}return r*1.2}
+function calc(){const prix=Math.max(0,+$('prix').value-+$('mob').value),neuf=$('type').value==='neuf';$('dmto').disabled=neuf;
+ const d=prix*(neuf?0.00715:+$('dmto').value),e=emol(prix),c=Math.max(15,prix*0.001),f=1200,t=d+e+c+f;
+ $('d').textContent=eur(d);$('e').textContent=eur(e);$('c').textContent=eur(c);$('f').textContent=eur(f);$('tot').textContent=eur(t);
+ $('pct').textContent=(+$('prix').value?(t/+$('prix').value*100).toFixed(2).replace('.',','):0)+' %'}
+['prix','type','dmto','mob'].forEach(i=>$(i).oninput=calc);calc();
+</script></body></html>
