@@ -14,17 +14,20 @@ def page(slug, title, desc, body, faq=None, script=""):
     faq_html = ""
     if faq:
         faq_html = "<h2>Questions fréquentes</h2>" + "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q,a in faq)
+    tool = slug not in ("index","mentions-legales","confidentialite")
+    crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
+    rel = related(slug) if tool else ""
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
     html = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title><meta name="description" content="{desc}"><link rel="canonical" href="{url}">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:type" content="website">
-<link rel="stylesheet" href="style.css">{ld_html}
+<link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1f6feb">{ld_html}
 <!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
 </head><body>
-<header><div class="wrap"><a class="logo" href="index.html">Simul<span>Malin</span></a>
+<header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
 <nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
-<main class="wrap">{body}{faq_html}{AD if slug not in ('mentions-legales','confidentialite') else ''}</main>
+<main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite') else ''}</main>
 <footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
 <a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
 <script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}});const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}});</script>
@@ -32,24 +35,36 @@ def page(slug, title, desc, body, faq=None, script=""):
     open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8").write(html)
     return url
 
+TOOLS = [
+ ("Emploi et salaire", [
+  ("salaire-brut-net","💶","Salaire brut → net","Convertissez votre salaire mensuel, annuel ou horaire.","#e8f0fe"),
+  ("indemnite-licenciement","📄","Indemnité de licenciement","Minimum légal, aussi valable en rupture conventionnelle.","#fdecea")]),
+ ("Immobilier", [
+  ("frais-de-notaire","🏠","Frais de notaire","Estimez les frais d'achat dans l'ancien ou le neuf.","#e6f4ea"),
+  ("credit-immobilier","🏦","Crédit immobilier","Mensualités, coût total et tableau d'amortissement.","#fef7e0")]),
+ ("Outils du quotidien", [
+  ("calcul-tva","🧾","Calcul de TVA","Passez du HT au TTC et inversement.","#f3e8fd"),
+  ("calcul-pourcentage","📊","Pourcentages","Remise, augmentation, taux d'évolution.","#e0f7fa"),
+  ("jours-entre-deux-dates","📅","Jours entre deux dates","Jours calendaires et jours ouvrés.","#fce8f3")]),
+]
+def card(t): return f'<a class="tool" href="{t[0]}.html"><span class="ico" style="background:{t[4]}">{t[1]}</span><span><strong>{t[2]}</strong><small>{t[3]}</small></span></a>'
+def related(slug):
+    allt=[t for _,l in TOOLS for t in l if t[0]!=slug][:3]
+    return '<h2>Autres simulateurs utiles</h2><div class="grid">'+"".join(card(t) for t in allt)+'</div>'
+
 urls = []
 
 # ---------- ACCUEIL ----------
 urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, crédit",
  "Calculateurs gratuits et instantanés : salaire brut en net, frais de notaire, mensualités de crédit immobilier. Simple, rapide, sans inscription.",
- """<h1>Vos calculs du quotidien, en quelques secondes</h1>
-<p class="lead">Des simulateurs gratuits, sans inscription, pour prendre les bonnes décisions sur votre salaire, votre achat immobilier et votre crédit.</p>
-<div class="grid" id="outils">
-<a class="tool" href="salaire-brut-net.html"><strong>Salaire brut → net</strong><small>Convertissez votre salaire mensuel ou annuel, cadre ou non-cadre.</small></a>
-<a class="tool" href="frais-de-notaire.html"><strong>Frais de notaire</strong><small>Estimez les frais d'achat dans l'ancien ou le neuf.</small></a>
-<a class="tool" href="credit-immobilier.html"><strong>Crédit immobilier</strong><small>Mensualités, coût total et tableau d'amortissement.</small></a>
-<a class="tool" href="indemnite-licenciement.html"><strong>Indemnité de licenciement</strong><small>Minimum légal, aussi valable en rupture conventionnelle.</small></a>
-<a class="tool" href="calcul-tva.html"><strong>Calcul de TVA</strong><small>Passez du HT au TTC et inversement.</small></a>
-<a class="tool" href="calcul-pourcentage.html"><strong>Pourcentages</strong><small>Remise, augmentation, taux d'évolution.</small></a>
-<a class="tool" href="jours-entre-deux-dates.html"><strong>Jours entre deux dates</strong><small>Jours calendaires et jours ouvrés.</small></a>
-</div>
-<h2>Pourquoi utiliser nos calculateurs ?</h2>
-<p>Chaque outil s'appuie sur les barèmes officiels en vigueur et vous explique le détail du calcul. Vos données restent dans votre navigateur : rien n'est envoyé ni enregistré.</p>"""))
+ """<section class="hero"><h1>Vos calculs du quotidien, <span>en quelques secondes</span></h1>
+<p class="lead">Des simulateurs gratuits et sans inscription pour décider en toute confiance : salaire, achat immobilier, crédit, démarches.</p>
+<div class="badges"><span>✓ 100 % gratuit</span><span>✓ Barèmes 2026</span><span>✓ Aucune donnée enregistrée</span></div></section>
+""" + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
+<h2>Pourquoi utiliser SimulMalin ?</h2>
+<div class="grid why"><div class="card"><strong>⚡ Instantané</strong><p>Les résultats se mettent à jour pendant que vous tapez, sans bouton ni rechargement.</p></div>
+<div class="card"><strong>📚 Expliqué</strong><p>Chaque outil détaille son calcul et répond aux questions les plus fréquentes.</p></div>
+<div class="card"><strong>🔒 Confidentiel</strong><p>Vos chiffres restent dans votre navigateur : rien n'est envoyé ni enregistré.</p></div></div>"""))
 
 # ---------- SALAIRE ----------
 urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gratuit et instantané",
