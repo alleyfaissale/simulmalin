@@ -101,3 +101,6 @@ main>p,main>ul,main>ol,main>details,main>h2:not(.cat),main>.note,main>.sources{m
 main>h1{max-width:900px}
 @media(min-width:781px){.calc{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);column-gap:40px;padding:28px 32px}.hero{grid-template-columns:1.5fr 1fr;gap:56px}}
 .grid{grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))}
+/* barre de recherche : un seul contour au focus (celui du cadre) */
+.search input,.search input:focus{outline:none;border:0;box-shadow:none;background:transparent;-webkit-appearance:none;appearance:none}
+.search input::-webkit-search-decoration{-webkit-appearance:none}
