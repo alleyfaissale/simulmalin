@@ -18,7 +18,7 @@ def page(slug, title, desc, body, faq=None, script=""):
         faq_html = "<h2>Questions fréquentes</h2>" + "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q,a in faq)
     tool = slug in ICONS
     crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
-    rel = related(slug) if tool else ""
+    rel = ((f'<p class="sources">Sources : {SOURCES[slug]}. Barèmes vérifiés en novembre 2026.</p>' if slug in SOURCES else "") + related(slug)) if tool else ""
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
     html = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -32,7 +32,7 @@ def page(slug, title, desc, body, faq=None, script=""):
 <main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite','a-propos','contact') else ''}</main>
 <footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
 <a href="a-propos.html">À propos</a><a href="contact.html">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
-<script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}});const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}});</script>
+<script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}}).replace(/\u202f/g,'\u00a0');const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}}).replace(/\u202f/g,'\u00a0');</script>
 {script}</body></html>"""
     open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8").write(html)
     return url
@@ -68,6 +68,15 @@ def related(slug):
     allt=[t for _,l in TOOLS for t in l if t[0]!=slug][:3]
     return '<h2>Autres simulateurs utiles</h2><div class="grid">'+"".join(card(t) for t in allt)+'</div>'
 
+SOURCES = {
+ "salaire-brut-net":'<a href="https://www.urssaf.fr" rel="nofollow">urssaf.fr</a> et <a href="https://www.service-public.gouv.fr" rel="nofollow">service-public.gouv.fr</a>',
+ "indemnite-licenciement":'<a href="https://www.service-public.gouv.fr" rel="nofollow">service-public.gouv.fr</a> (Code du travail)',
+ "frais-de-notaire":'<a href="https://www.service-public.gouv.fr" rel="nofollow">service-public.gouv.fr</a>, <a href="https://www.notaires.fr" rel="nofollow">notaires.fr</a> et <a href="https://www.impots.gouv.fr" rel="nofollow">impots.gouv.fr</a>',
+ "credit-immobilier":'<a href="https://www.banque-france.fr" rel="nofollow">Banque de France</a> et recommandations du HCSF',
+ "capacite-emprunt":'<a href="https://www.banque-france.fr" rel="nofollow">Banque de France</a> et recommandations du HCSF',
+ "calcul-tva":'<a href="https://www.impots.gouv.fr" rel="nofollow">impots.gouv.fr</a>',
+}
+
 urls = []
 
 # ---------- ACCUEIL ----------
@@ -77,6 +86,7 @@ urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, c
 <p class="lead">Des simulateurs gratuits et sans inscription pour décider en toute confiance : salaire, achat immobilier, crédit, démarches.</p>
 <div class="badges"><span>✓ 100 % gratuit</span><span>✓ Barèmes 2026</span><span>✓ Aucune donnée enregistrée</span></div></section>
 """ + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
+<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?")]) + """</p>
 <h2>Pourquoi utiliser SimulMalin ?</h2>
 <div class="grid why"><div class="card"><strong>Instantané</strong><p>Les résultats se mettent à jour pendant que vous tapez, sans bouton ni rechargement.</p></div>
 <div class="card"><strong>Expliqué</strong><p>Chaque outil détaille son calcul et répond aux questions les plus fréquentes.</p></div>

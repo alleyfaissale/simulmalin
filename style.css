@@ -44,3 +44,8 @@ h2.cat{font-size:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chips a{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px 12px;text-decoration:none;font-size:.9rem}.chips a:hover{border-color:var(--accent)}
 .ico svg{display:block}
 .kv b{white-space:nowrap}
+/* v3 */
+.ad-slot{display:none} /* emplacements masqués tant qu'AdSense n'est pas activé */
+@media(max-width:600px){.hero h1{font-size:1.6rem}.hero{padding:28px 16px 22px}}
+@media (prefers-color-scheme:dark){.ico{background:rgba(255,255,255,.08)!important;opacity:1;filter:none}}
+.sources{font-size:.85rem;color:var(--muted);border-top:1px solid var(--border);padding-top:12px;margin-top:28px}
