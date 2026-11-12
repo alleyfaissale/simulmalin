@@ -27,11 +27,11 @@ def page(slug, title, desc, body, faq=None, script=""):
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title><meta name="description" content="{desc}"><link rel="canonical" href="{url}">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:type" content="website">
-<link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1f6feb">{ld_html}
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;600&display=swap"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45">{ld_html}
 <!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
-<form class="search" role="search" onsubmit="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Rechercher un calcul… (ex. notaire 250 000)" aria-label="Rechercher un calcul" autocomplete="off"><div id="sr" role="listbox"></div></form>
+<form class="search" role="search" onsubmit="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Rechercher un calcul…" aria-label="Rechercher un calcul" autocomplete="off"><div id="sr" role="listbox"></div></form>
 <nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
 <main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite','a-propos','contact') else ''}</main>
 <footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
@@ -87,15 +87,19 @@ urls = []
 # ---------- ACCUEIL ----------
 urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, crédit",
  "Calculateurs gratuits et instantanés : salaire brut en net, frais de notaire, mensualités de crédit immobilier. Simple, rapide, sans inscription.",
- """<section class="hero"><h1>Vos calculs du quotidien, <span>en quelques secondes</span></h1>
-<p class="lead">Des simulateurs gratuits et sans inscription pour décider en toute confiance : salaire, achat immobilier, crédit, démarches.</p>
-<div class="badges"><span>✓ 100 % gratuit</span><span>✓ Barèmes 2026</span><span>✓ Aucune donnée enregistrée</span></div></section>
+ """<section class="hero"><div><p class="kicker">Simulateurs indépendants · barèmes 2026 vérifiés</p>
+<h1>Le bon chiffre, <em>avant</em> de signer.</h1>
+<p class="lead">Salaire, achat immobilier, prêt, rupture de contrat : on fait le calcul avec vous, en détaillant chaque ligne et en citant nos sources.</p></div>
+<a class="ticket" href="salaire-2500-euros-brut-en-net.html" style="text-decoration:none;color:inherit"><p>Exemple</p>
+<div class="l"><span>Salaire brut</span><span>2 500 €</span></div><div class="l"><span>Cotisations</span><span>− 521 €</span></div>
+<div class="l"><span>Net avant impôt</span><span class="t">1 979 €</span></div><span style="color:var(--accent);font-size:.9rem">Voir le détail →</span></a></section>
 """ + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
 <h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?")]) + """</p>
-<h2>Pourquoi utiliser SimulMalin ?</h2>
-<div class="grid why"><div class="card"><strong>Instantané</strong><p>Les résultats se mettent à jour pendant que vous tapez, sans bouton ni rechargement.</p></div>
-<div class="card"><strong>Expliqué</strong><p>Chaque outil détaille son calcul et répond aux questions les plus fréquentes.</p></div>
-<div class="card"><strong>Confidentiel</strong><p>Vos chiffres restent dans votre navigateur : rien n'est envoyé ni enregistré.</p></div></div>"""))
+<h2>Notre méthode</h2>
+<div class="method"><p><b>Des barèmes officiels.</b> Chaque taux vient d'une source publique (Urssaf, service-public.gouv.fr, impots.gouv.fr) et la date de vérification figure en bas de page.</p>
+<p><b>Un calcul qu'on peut refaire.</b> Nous affichons le détail ligne par ligne : vous voyez d'où vient chaque euro, et vous pouvez le vérifier vous-même.</p>
+<p><b>Rien n'est enregistré.</b> Les montants que vous saisissez restent dans votre navigateur. Pas de compte, pas de formulaire, pas de rappel commercial.</p>
+<p><b>Une erreur ?</b> Écrivez-nous à <a href="mailto:contact@simulmalin.fr">contact@simulmalin.fr</a> : nous corrigeons et indiquons la date de mise à jour.</p></div>"""))
 
 # ---------- SALAIRE ----------
 # Barèmes 2026 (sources : URSSAF, Agirc-Arrco, service-public.fr). PMSS 2026 = 4 005 €.
