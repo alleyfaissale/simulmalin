@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Calcul TVA : convertir HT en TTC et TTC en HT (20 %, 10 %, 5,5 %)</title><meta name="description" content="Calculateur de TVA gratuit : passez du prix HT au prix TTC et inversement avec les taux français 20 %, 10 %, 5,5 % et 2,1 %. Montant de TVA détaillé."><link rel="canonical" href="https://simulmalin.fr/calcul-tva.html">
 <meta property="og:title" content="Calcul TVA : convertir HT en TTC et TTC en HT (20 %, 10 %, 5,5 %)"><meta property="og:description" content="Calculateur de TVA gratuit : passez du prix HT au prix TTC et inversement avec les taux français 20 %, 10 %, 5,5 % et 2,1 %. Montant de TVA détaillé."><meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;600&display=swap"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Comment calculer 20 % de TVA ?", "acceptedAnswer": {"@type": "Answer", "text": "Multipliez le montant HT par 0,2 pour obtenir la TVA, ou par 1,2 pour obtenir directement le prix TTC."}}, {"@type": "Question", "name": "Pourquoi ne pas retirer 20 % d'un prix TTC ?", "acceptedAnswer": {"@type": "Answer", "text": "Parce que la TVA est calculée sur le prix HT. Pour retrouver le HT, il faut diviser le TTC par 1,2 et non retirer 20 %."}}]}</script>
+<link rel="preload" href="fonts/inter-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Comment calculer 20 % de TVA ?", "acceptedAnswer": {"@type": "Answer", "text": "Multipliez le montant HT par 0,2 pour obtenir la TVA, ou par 1,2 pour obtenir directement le prix TTC."}}, {"@type": "Question", "name": "Pourquoi ne pas retirer 20 % d'un prix TTC ?", "acceptedAnswer": {"@type": "Answer", "text": "Parce que la TVA est calculée sur le prix HT. Pour retrouver le HT, il faut diviser le TTC par 1,2 et non retirer 20 %."}}]}</script>
 <!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
@@ -11,8 +11,8 @@
 <main class="wrap"><nav class="crumb"><a href="index.html">Accueil</a> › <span>Calcul TVA</span> <em class="upd">Mis à jour : novembre 2026</em></nav><h1>Calcul de la TVA : HT ↔ TTC</h1>
 <p class="lead">Saisissez un montant HT ou TTC, l'autre se calcule instantanément.</p>
 <div class="card calc"><label for="t">Taux de TVA</label><select id="t"><option value="20">20 % (taux normal)</option><option value="10">10 % (taux intermédiaire)</option><option value="5.5">5,5 % (taux réduit)</option><option value="2.1">2,1 % (taux particulier)</option></select>
-<div class="row"><div><label for="ht">Montant HT (€)</label><input id="ht" type="number" value="100"></div><div><label for="ttc">Montant TTC (€)</label><input id="ttc" type="number"></div></div>
-<div class="result" aria-live="polite"><div>Montant de la TVA</div><div class="big" id="tva">–</div></div></div>
+<div class="row"><div><label for="ht">Montant HT (€)</label><input id="ht" type="number" value="100" data-range="0,5000,10" data-suffix="€"></div><div><label for="ttc">Montant TTC (€)</label><input id="ttc" type="number" data-suffix="€"></div></div>
+<div class="result" aria-live="polite"><div>Montant de la TVA</div><div class="big" id="tva">–</div><div class="bar" id="bar"></div><div class="kv"><span>Prix HT</span><b id="rht">–</b></div><div class="kv"><span>Prix TTC</span><b id="rttc">–</b></div></div></div>
 <div class="ad-slot" aria-hidden="true">Publicité</div>
 <h2>Les formules de la TVA</h2>
 <p><b>HT vers TTC :</b> TTC = HT × (1 + taux). Avec 20 %, on multiplie par 1,2.<br><b>TTC vers HT :</b> HT = TTC ÷ (1 + taux). Avec 20 %, on divise par 1,2.</p>
@@ -25,6 +25,6 @@
 <script>
 const $=id=>document.getElementById(id);let src='ht';
 function calc(){const t=+$('t').value/100;if(src==='ht'){$('ttc').value=$('ht').value?(+$('ht').value*(1+t)).toFixed(2):''}else{$('ht').value=$('ttc').value?(+$('ttc').value/(1+t)).toFixed(2):''}
-$('tva').textContent=eur2(+$('ttc').value-+$('ht').value)}
+const h=+$('ht').value,c=+$('ttc').value;$('tva').textContent=eur2(c-h);$('rht').textContent=eur2(h);$('rttc').textContent=eur2(c);bar('bar',[{l:'Prix HT',v:h,c:'var(--accent)'},{l:'TVA',v:c-h,c:'#c9a227'}])}
 $('ht').oninput=()=>{src='ht';calc()};$('ttc').oninput=()=>{src='ttc';calc()};$('t').oninput=calc;calc();
 </script></body></html>

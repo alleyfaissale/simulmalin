@@ -22,14 +22,14 @@ def page(slug, title, desc, body, faq=None, script=""):
     tool = slug in ICONS
     crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
     rel = ((f'<p class="sources">Sources : {SOURCES[slug]}. Barèmes vérifiés en novembre 2026.</p>' if slug in SOURCES else "") + related(slug)) if tool else ""
-    if slug in ("salaire-brut-net","frais-de-notaire","credit-immobilier","capacite-emprunt","indemnite-licenciement","calcul-tva"):
+    if slug in ("salaire-brut-net","frais-de-notaire","credit-immobilier","capacite-emprunt","indemnite-licenciement","calcul-tva","jours-entre-deux-dates"):
         body = body.replace('<div class="card">', '<div class="card calc">', 1)
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
     html = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title><meta name="description" content="{desc}"><link rel="canonical" href="{url}">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;600&display=swap"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45">{ld_html}
+<link rel="preload" href="fonts/inter-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45">{ld_html}
 <!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
@@ -120,8 +120,8 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 <div><label for="periode">Période</label><select id="periode"><option value="1">Mensuel</option><option value="12">Annuel</option><option value="h">Horaire (35 h)</option></select></div></div>
 <div class="row"><div><label for="brut">Salaire brut (€)</label><input id="brut" type="number" inputmode="decimal" value="2500" data-range="1000,10000,50" data-suffix="€"></div>
 <div><label for="net">Salaire net avant impôt (€)</label><input id="net" type="number" inputmode="decimal" data-suffix="€"></div></div>
-<div class="row"><div><label for="mut">Mutuelle et prévoyance, part salariale (€ / mois)</label><input id="mut" type="number" step="1" value="0"></div>
-<div><label for="pas">Taux de prélèvement à la source (%)</label><input id="pas" type="number" step="0.1" value="0"></div></div>
+<div class="row"><div><label for="mut">Mutuelle et prévoyance, part salariale (€ / mois)</label><input id="mut" type="number" step="1" value="0" data-suffix="€"></div>
+<div><label for="pas">Taux de prélèvement à la source (%)</label><input id="pas" type="number" step="0.1" value="0" data-suffix="%"></div></div>
 <div class="result" aria-live="polite"><div>Net après impôt</div><div class="big" id="apres">–</div>
 <div class="bar" id="bar"></div><div class="kv"><span>Net mensuel avant impôt</span><b id="nm">–</b></div>
 <div class="kv"><span>Net annuel avant impôt</span><b id="na">–</b></div>
@@ -160,7 +160,7 @@ urls.append(page("frais-de-notaire", "Calcul frais de notaire 2026 : simulateur 
 <div><label for="type">Type de bien</label><select id="type"><option value="ancien">Ancien</option><option value="neuf">Neuf (VEFA)</option></select></div></div>
 <div class="row"><div><label for="dmto">Taux du département (ancien)</label><select id="dmto">
 <option value="0.0631850">Taux relevé (5 %) – 88 départements en 2026</option><option value="0.0580665">Taux de 4,5 % – autres départements et primo-accédants</option><option value="0.0509006">Taux de 3,8 % – Indre</option></select></div>
-<div><label for="mob">Mobilier inclus (€, déductible)</label><input id="mob" type="number" value="0"></div></div>
+<div><label for="mob">Mobilier inclus (€, déductible)</label><input id="mob" type="number" value="0" data-suffix="€"></div></div>
 <div class="result" aria-live="polite"><div>Frais de notaire estimés</div><div class="big" id="tot">–</div>
 <div class="bar" id="bar"></div><div class="kv"><span>Droits de mutation (taxes)</span><b id="d">–</b></div>
 <div class="kv"><span>Émoluments du notaire (TTC)</span><b id="e">–</b></div>
@@ -197,8 +197,8 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
 <div><label for="cap">Montant emprunté (€)</label><input id="cap" type="number" value="200000" data-range="20000,800000,5000" data-suffix="€"></div>
 <div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="1" max="30" data-range="5,30,1" data-suffix="ans"></div></div>
 <div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.70" data-range="1,7,0.05" data-suffix="%"></div>
-<div><label for="ass">Taux d'assurance annuel (%)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
-<label for="rev">Revenus nets mensuels du foyer (€, optionnel)</label><input id="rev" type="number" value="">
+<div><label for="ass">Taux d'assurance annuel (%)</label><input id="ass" type="number" step="0.01" value="0.30" data-range="0,1,0.01" data-suffix="%"></div></div>
+<label for="rev">Revenus nets mensuels du foyer (€, optionnel)</label><input id="rev" type="number" value="" data-suffix="€">
 <div class="result" aria-live="polite"><div>Mensualité (assurance incluse)</div><div class="big" id="m">–</div>
 <div class="bar" id="bar"></div><div class="kv"><span>Dont assurance</span><b id="ma">–</b></div>
 <div class="kv"><span>Coût total des intérêts</span><b id="ci">–</b></div>
@@ -232,8 +232,8 @@ urls.append(page("calcul-tva", "Calcul TVA : convertir HT en TTC et TTC en HT (2
  """<h1>Calcul de la TVA : HT ↔ TTC</h1>
 <p class="lead">Saisissez un montant HT ou TTC, l'autre se calcule instantanément.</p>
 <div class="card"><label for="t">Taux de TVA</label><select id="t"><option value="20">20 % (taux normal)</option><option value="10">10 % (taux intermédiaire)</option><option value="5.5">5,5 % (taux réduit)</option><option value="2.1">2,1 % (taux particulier)</option></select>
-<div class="row"><div><label for="ht">Montant HT (€)</label><input id="ht" type="number" value="100"></div><div><label for="ttc">Montant TTC (€)</label><input id="ttc" type="number"></div></div>
-<div class="result" aria-live="polite"><div>Montant de la TVA</div><div class="big" id="tva">–</div></div></div>
+<div class="row"><div><label for="ht">Montant HT (€)</label><input id="ht" type="number" value="100" data-range="0,5000,10" data-suffix="€"></div><div><label for="ttc">Montant TTC (€)</label><input id="ttc" type="number" data-suffix="€"></div></div>
+<div class="result" aria-live="polite"><div>Montant de la TVA</div><div class="big" id="tva">–</div><div class="bar" id="bar"></div><div class="kv"><span>Prix HT</span><b id="rht">–</b></div><div class="kv"><span>Prix TTC</span><b id="rttc">–</b></div></div></div>
 """ + AD + """
 <h2>Les formules de la TVA</h2>
 <p><b>HT vers TTC :</b> TTC = HT × (1 + taux). Avec 20 %, on multiplie par 1,2.<br><b>TTC vers HT :</b> HT = TTC ÷ (1 + taux). Avec 20 %, on divise par 1,2.</p>
@@ -244,7 +244,7 @@ urls.append(page("calcul-tva", "Calcul TVA : convertir HT en TTC et TTC en HT (2
  script="""<script>
 const $=id=>document.getElementById(id);let src='ht';
 function calc(){const t=+$('t').value/100;if(src==='ht'){$('ttc').value=$('ht').value?(+$('ht').value*(1+t)).toFixed(2):''}else{$('ht').value=$('ttc').value?(+$('ttc').value/(1+t)).toFixed(2):''}
-$('tva').textContent=eur2(+$('ttc').value-+$('ht').value)}
+const h=+$('ht').value,c=+$('ttc').value;$('tva').textContent=eur2(c-h);$('rht').textContent=eur2(h);$('rttc').textContent=eur2(c);bar('bar',[{l:'Prix HT',v:h,c:'var(--accent)'},{l:'TVA',v:c-h,c:'#c9a227'}])}
 $('ht').oninput=()=>{src='ht';calc()};$('ttc').oninput=()=>{src='ttc';calc()};$('t').oninput=calc;calc();
 </script>"""))
 
@@ -252,18 +252,18 @@ $('ht').oninput=()=>{src='ht';calc()};$('ttc').oninput=()=>{src='ttc';calc()};$(
 urls.append(page("calcul-pourcentage", "Calcul de pourcentage : augmentation, réduction, évolution",
  "Calculez facilement un pourcentage, une remise, une augmentation ou un taux d'évolution entre deux valeurs. Outil gratuit avec explications.",
  """<h1>Calcul de pourcentage</h1><p class="lead">Quatre calculs courants, résultats instantanés.</p>
-<div class="card"><h2 style="margin-top:0">Combien font X % de Y ?</h2><div class="row"><div><label for="a1">Pourcentage (%)</label><input id="a1" type="number" value="15"></div><div><label for="a2">Valeur</label><input id="a2" type="number" value="80"></div></div><div class="result"><div class="big" id="r1">–</div></div></div>
-<div class="card"><h2 style="margin-top:0">Prix après remise ou augmentation</h2><div class="row"><div><label for="b1">Prix initial</label><input id="b1" type="number" value="50"></div><div><label for="b2">Variation (%, négatif pour une remise)</label><input id="b2" type="number" value="-30"></div></div><div class="result"><div class="big" id="r2">–</div></div></div>
+<div class="card"><h2 style="margin-top:0">Combien font X % de Y ?</h2><div class="row"><div><label for="a1">Pourcentage (%)</label><input id="a1" type="number" value="15" data-suffix="%"></div><div><label for="a2">Valeur</label><input id="a2" type="number" value="80"></div></div><div class="result"><div class="big" id="r1">–</div></div></div>
+<div class="card"><h2 style="margin-top:0">Prix après remise ou augmentation</h2><div class="row"><div><label for="b1">Prix initial</label><input id="b1" type="number" value="50"></div><div><label for="b2">Variation (%, négatif pour une remise)</label><input id="b2" type="number" value="-30" data-range="-90,100,1" data-suffix="%"></div></div><div class="result"><div class="big" id="r2">–</div></div></div>
 """ + AD + """
 <div class="card"><h2 style="margin-top:0">Taux d'évolution entre deux valeurs</h2><div class="row"><div><label for="c1">Valeur de départ</label><input id="c1" type="number" value="1200"></div><div><label for="c2">Valeur d'arrivée</label><input id="c2" type="number" value="1500"></div></div><div class="result"><div class="big" id="r3">–</div></div></div>
-<div class="card"><h2 style="margin-top:0">X représente quel pourcentage de Y ?</h2><div class="row"><div><label for="d1">Partie</label><input id="d1" type="number" value="45"></div><div><label for="d2">Total</label><input id="d2" type="number" value="180"></div></div><div class="result"><div class="big" id="r4">–</div></div></div>
+<div class="card"><h2 style="margin-top:0">X représente quel pourcentage de Y ?</h2><div class="row"><div><label for="d1">Partie</label><input id="d1" type="number" value="45"></div><div><label for="d2">Total</label><input id="d2" type="number" value="180"></div></div><div class="result"><div class="big" id="r4">–</div><div class="bar" id="bar"></div></div></div>
 <h2>Les formules à retenir</h2><p>X % de Y = Y × X ÷ 100. Taux d'évolution = (arrivée − départ) ÷ départ × 100. Attention : une baisse de 50 % suivie d'une hausse de 50 % ne ramène pas au prix de départ (100 → 50 → 75).</p>""",
  faq=[("Comment calculer une réduction de 30 % ?","Multipliez le prix par 0,7. Par exemple, 50 € avec 30 % de remise donnent 35 €."),
       ("Comment calculer un pourcentage d'augmentation ?","Soustrayez l'ancienne valeur de la nouvelle, divisez par l'ancienne valeur, puis multipliez par 100.")],
  script="""<script>
 const $=id=>document.getElementById(id),fr=n=>isFinite(n)?n.toLocaleString('fr-FR',{maximumFractionDigits:2}):'–';
 function calc(){$('r1').textContent=fr(+$('a1').value*+$('a2').value/100);$('r2').textContent=fr(+$('b1').value*(1+ +$('b2').value/100));
-const e=(+$('c2').value-+$('c1').value)/+$('c1').value*100;$('r3').textContent=(e>0?'+':'')+fr(e)+' %';$('r4').textContent=fr(+$('d1').value/+$('d2').value*100)+' %'}
+const e=(+$('c2').value-+$('c1').value)/+$('c1').value*100;$('r3').textContent=(e>0?'+':'')+fr(e)+' %';$('r4').textContent=fr(+$('d1').value/+$('d2').value*100)+' %';bar('bar',[{l:'Partie',v:+$('d1').value,c:'var(--accent)'},{l:'Reste',v:+$('d2').value-+$('d1').value,c:'#b9b3a5'}])}
 document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
 </script>"""))
 
@@ -272,9 +272,9 @@ urls.append(page("indemnite-licenciement", "Indemnité de licenciement et ruptur
  "Calculez le montant minimum légal de votre indemnité de licenciement ou de rupture conventionnelle selon votre ancienneté et votre salaire de référence.",
  """<h1>Calcul de l'indemnité de licenciement ou de rupture conventionnelle</h1>
 <p class="lead">Montant minimum légal, applicable aussi à la rupture conventionnelle.</p>
-<div class="card"><div class="row"><div><label for="sal">Salaire brut mensuel de référence (€)</label><input id="sal" type="number" value="2800"></div>
-<div><label for="ans">Ancienneté (années)</label><input id="ans" type="number" value="6"></div><div><label for="mois">+ mois</label><input id="mois" type="number" value="0" min="0" max="11"></div></div>
-<div class="result" aria-live="polite"><div>Indemnité légale minimum</div><div class="big" id="ind">–</div><p class="note" id="msg"></p></div></div>
+<div class="card"><div class="row"><div><label for="sal">Salaire brut mensuel de référence (€)</label><input id="sal" type="number" value="2800" data-range="1000,10000,50" data-suffix="€"></div>
+<div><label for="ans">Ancienneté (années)</label><input id="ans" type="number" value="6" data-range="0,40,1" data-suffix="ans"></div><div><label for="mois">+ mois</label><input id="mois" type="number" value="0" min="0" max="11" data-suffix="mois"></div></div>
+<div class="result" aria-live="polite"><div>Indemnité légale minimum</div><div class="big" id="ind">–</div><div class="bar" id="bar"></div><p class="note" id="msg"></p></div></div>
 """ + AD + """
 <h2>Comment est calculée l'indemnité légale ?</h2>
 <p>Le salarié doit justifier d'au moins 8 mois d'ancienneté. L'indemnité est égale à 1/4 de mois de salaire par année d'ancienneté jusqu'à 10 ans, puis à 1/3 de mois par année au-delà. Les années incomplètes sont comptées au prorata des mois.</p>
@@ -285,8 +285,8 @@ urls.append(page("indemnite-licenciement", "Indemnité de licenciement et ruptur
  script="""<script>
 const $=id=>document.getElementById(id);
 function calc(){const s=+$('sal').value,a=+$('ans').value+ +$('mois').value/12;
-if(a<8/12){$('ind').textContent=eur(0);$('msg').textContent="Moins de 8 mois d'ancienneté : pas d'indemnité légale.";return}
-const i=s*(Math.min(a,10)/4+Math.max(0,a-10)/3);$('ind').textContent=eur(i);$('msg').textContent='Soit '+(i/s).toLocaleString('fr-FR',{maximumFractionDigits:2})+' mois de salaire.'}
+if(a<8/12){$('ind').textContent=eur(0);$('bar').innerHTML='';$('msg').textContent="Moins de 8 mois d'ancienneté : pas d'indemnité légale.";return}
+const i=s*(Math.min(a,10)/4+Math.max(0,a-10)/3);$('ind').textContent=eur(i);bar('bar',[{l:'10 premières années',v:s*Math.min(a,10)/4,c:'var(--accent)'},{l:'Au-delà de 10 ans',v:s*Math.max(0,a-10)/3,c:'#c9a227'}]);$('msg').textContent='Soit '+(i/s).toLocaleString('fr-FR',{maximumFractionDigits:2})+' mois de salaire.'}
 ['sal','ans','mois'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
 
@@ -296,9 +296,9 @@ urls.append(page("jours-entre-deux-dates", "Nombre de jours entre deux dates : c
  """<h1>Nombre de jours entre deux dates</h1><p class="lead">Jours calendaires, semaines et jours ouvrés (hors week-ends).</p>
 <div class="card"><div class="row"><div><label for="d1">Date de début</label><input id="d1" type="date"></div><div><label for="d2">Date de fin</label><input id="d2" type="date"></div></div>
 <div class="result" aria-live="polite"><div>Écart</div><div class="big" id="j">–</div>
-<div class="kv"><span>En semaines</span><b id="s">–</b></div><div class="kv"><span>Jours ouvrés (lundi au vendredi)</span><b id="o">–</b></div></div></div>
+<div class="bar" id="bar"></div><div class="kv"><span>En semaines</span><b id="s">–</b></div><div class="kv"><span>Jours ouvrés (lundi au vendredi)</span><b id="o">–</b></div></div></div>
 """ + AD + """
-<div class="card"><h2 style="margin-top:0">Ajouter ou retirer des jours</h2><div class="row"><div><label for="b">Date</label><input id="b" type="date"></div><div><label for="n">Nombre de jours (négatif pour retirer)</label><input id="n" type="number" value="90"></div></div>
+<div class="card"><h2 style="margin-top:0">Ajouter ou retirer des jours</h2><div class="row"><div><label for="b">Date</label><input id="b" type="date"></div><div><label for="n">Nombre de jours (négatif pour retirer)</label><input id="n" type="number" value="90" data-suffix="jours"></div></div>
 <div class="result"><div class="big" id="res">–</div></div></div>
 <p class="note">Les jours fériés ne sont pas déduits du nombre de jours ouvrés.</p>""",
  faq=[("La date de fin est-elle comptée ?","Non, le calcul donne l'écart entre les deux dates. Ajoutez 1 si vous voulez inclure les deux jours."),
@@ -307,7 +307,7 @@ urls.append(page("jours-entre-deux-dates", "Nombre de jours entre deux dates : c
 const $=id=>document.getElementById(id),D=864e5,iso=d=>d.toISOString().slice(0,10);const t=new Date();$('d1').value=iso(t);$('d2').value=iso(new Date(t.getFullYear(),11,31,12));$('b').value=iso(t);
 function calc(){const a=new Date($('d1').value+'T12:00'),b=new Date($('d2').value+'T12:00');if(!isNaN(a)&&!isNaN(b)){const n=Math.round((b-a)/D);
 $('j').textContent=n.toLocaleString('fr-FR')+' jours';$('s').textContent=(n/7).toLocaleString('fr-FR',{maximumFractionDigits:1});
-let o=0,s=Math.sign(n);for(let i=0;i<Math.abs(n);i++){const d=new Date(+a+s*(i+(s>0?1:0))*D).getDay();if(d%6)o++}$('o').textContent=o}
+let o=0,s=Math.sign(n);for(let i=0;i<Math.abs(n);i++){const d=new Date(+a+s*(i+(s>0?1:0))*D).getDay();if(d%6)o++}$('o').textContent=o;bar('bar',[{l:'Jours ouvrés',v:o,c:'var(--accent)'},{l:'Week-ends',v:Math.abs(n)-o,c:'#b9b3a5'}])}
 const c=new Date($('b').value+'T12:00');if(!isNaN(c)){const r=new Date(+c+ +$('n').value*D);$('res').textContent=r.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}}
 document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
 </script>"""))
@@ -354,10 +354,10 @@ urls.append(page("capacite-emprunt", "Capacité d'emprunt 2026 : combien pouvez-
 <p class="lead">Combien la banque peut-elle vous prêter ? Estimation instantanée selon la règle des 35 % d'endettement.</p>
 <div class="card"><div class="row">
 <div><label for="rev">Revenus nets mensuels du foyer (€)</label><input id="rev" type="number" value="4000" data-range="1000,15000,100" data-suffix="€"></div>
-<div><label for="chg">Crédits en cours (€ / mois)</label><input id="chg" type="number" value="0"></div></div>
+<div><label for="chg">Crédits en cours (€ / mois)</label><input id="chg" type="number" value="0" data-suffix="€"></div></div>
 <div class="row"><div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="5" max="27" data-range="5,27,1" data-suffix="ans"></div>
-<div><label for="taux">Taux nominal (%)</label><input id="taux" type="number" step="0.01" value="3.70"></div>
-<div><label for="ass">Assurance (% par an)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
+<div><label for="taux">Taux nominal (%)</label><input id="taux" type="number" step="0.01" value="3.70" data-range="1,7,0.05" data-suffix="%"></div>
+<div><label for="ass">Assurance (% par an)</label><input id="ass" type="number" step="0.01" value="0.30" data-range="0,1,0.01" data-suffix="%"></div></div>
 <div class="result" aria-live="polite"><div>Vous pouvez emprunter environ</div><div class="big" id="cap">–</div>
 <div class="bar" id="bar"></div><div class="kv"><span>Mensualité maximale (assurance incluse)</span><b id="mm">–</b></div>
 <div class="kv"><span>Reste à vivre après mensualités</span><b id="rav">–</b></div>
