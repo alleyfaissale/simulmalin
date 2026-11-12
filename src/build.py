@@ -1,5 +1,5 @@
 # Génère les pages du site à partir de modèles. Lancer : python3 src/build.py
-import json, os
+import json, os, re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "SimulMalin"
 DOMAIN = "https://simulmalin.fr"  # À remplacer par le vrai domaine
@@ -7,7 +7,10 @@ AD = '<div class="ad-slot" aria-hidden="true">Publicité</div>'
 
 def fr(n,d=0): return f"{n:,.{d}f}".replace(",","\u202f").replace(".",",")
 
+PAGES = []
 def page(slug, title, desc, body, faq=None, script=""):
+    if slug not in ("index","mentions-legales","confidentialite","contact","a-propos"):
+        PAGES.append({"u": slug + ".html", "t": re.split(r" : | – ", title)[0].strip(), "d": (desc if len(desc)<=110 else desc[:110].rsplit(" ",1)[0]+"…")})
     ld = []
     if faq:
         ld.append({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
@@ -28,11 +31,13 @@ def page(slug, title, desc, body, faq=None, script=""):
 <!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
+<form class="search" role="search" onsubmit="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Rechercher un calcul… (ex. notaire 250 000)" aria-label="Rechercher un calcul" autocomplete="off"><div id="sr" role="listbox"></div></form>
 <nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
 <main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite','a-propos','contact') else ''}</main>
 <footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
 <a href="a-propos.html">À propos</a><a href="contact.html">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
 <script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}}).replace(/\u202f/g,'\u00a0');const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}}).replace(/\u202f/g,'\u00a0');</script>
+<script src="search.js" defer></script>
 {script}</body></html>"""
     open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8").write(html)
     return url
@@ -475,6 +480,18 @@ page("confidentialite","Confidentialité et cookies – SimulMalin","Politique d
 <p>Pour toute question : contact@simulmalin.fr.</p></div>""")
 
 urls += [f"{DOMAIN}/a-propos.html", f"{DOMAIN}/contact.html"]
+SEARCH_JS = r"""
+(function(){var P=__PAGES__;var q=document.getElementById('q'),r=document.getElementById('sr');if(!q)return;
+function n(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/(\d)[\s\u00a0\u202f](?=\d{3}\b)/g,'$1')}
+P.forEach(function(p){p.k=n(p.t+' '+p.d+' '+p.u.replace(/-/g,' '));p.h=n(p.t+' '+p.u.replace(/-/g,' '))});
+function show(){var w=n(q.value).split(/\s+/).filter(Boolean);if(!w.length){r.innerHTML='';r.className='';return}
+var res=P.filter(function(p){return w.every(function(x){return p.k.indexOf(x)>=0})}).sort(function(a,b){return w.filter(function(x){return b.h.indexOf(x)>=0}).length-w.filter(function(x){return a.h.indexOf(x)>=0}).length}).slice(0,8);
+r.className='open';r.innerHTML=res.length?res.map(function(p){return '<a href="'+p.u+'"><b>'+p.t+'</b><small>'+p.d+'</small></a>'}).join(''):'<p>Aucun résultat. Essayez « salaire », « notaire » ou « crédit ».</p>'}
+q.addEventListener('input',show);q.addEventListener('focus',show);
+document.addEventListener('click',function(e){if(!e.target.closest('.search')){r.innerHTML='';r.className=''}});
+q.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=r.querySelector('a');if(a)location.href=a.getAttribute('href')}if(e.key==='Escape'){q.value='';show()}});})();
+"""
+open(os.path.join(ROOT,"search.js"),"w",encoding="utf-8").write(SEARCH_JS.replace("__PAGES__", json.dumps(PAGES, ensure_ascii=False)))
 open(os.path.join(ROOT,"sitemap.xml"),"w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"".join(f"<url><loc>{u}</loc></url>" for u in urls)+"</urlset>\n")
 open(os.path.join(ROOT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n")
 open(os.path.join(ROOT,"ads.txt"),"w").write("# Ajouter ici la ligne fournie par Google AdSense, ex. : google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0\n")

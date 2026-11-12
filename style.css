@@ -49,3 +49,11 @@ h2.cat{font-size:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--
 @media(max-width:600px){.hero h1{font-size:1.6rem}.hero{padding:28px 16px 22px}}
 @media (prefers-color-scheme:dark){.ico{background:rgba(255,255,255,.08)!important;opacity:1;filter:none}}
 .sources{font-size:.85rem;color:var(--muted);border-top:1px solid var(--border);padding-top:12px;margin-top:28px}
+/* v4 : recherche */
+.search{position:relative;flex:1;max-width:380px;display:flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:0 12px;color:var(--muted)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,111,235,.15)}
+.search input{border:0;background:transparent;padding:9px 8px;font-size:.95rem;outline:none}
+#sr{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);z-index:50;max-height:70vh;overflow:auto}
+#sr.open{display:block}#sr a{display:block;padding:10px 14px;text-decoration:none;color:var(--text);border-bottom:1px solid var(--border)}#sr a:last-child{border:0}
+#sr a:hover,#sr a:focus{background:var(--bg)}#sr small{display:block;color:var(--muted);font-size:.82rem;line-height:1.35;margin-top:2px}#sr p{margin:0;padding:12px 14px;color:var(--muted);font-size:.9rem}
+@media(max-width:760px){.search{order:3;flex-basis:100%;max-width:none}}
