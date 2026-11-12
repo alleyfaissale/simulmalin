@@ -22,6 +22,8 @@ def page(slug, title, desc, body, faq=None, script=""):
     tool = slug in ICONS
     crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
     rel = ((f'<p class="sources">Sources : {SOURCES[slug]}. Barèmes vérifiés en novembre 2026.</p>' if slug in SOURCES else "") + related(slug)) if tool else ""
+    if slug in ("salaire-brut-net","frais-de-notaire","credit-immobilier","capacite-emprunt","indemnite-licenciement","calcul-tva"):
+        body = body.replace('<div class="card">', '<div class="card calc">', 1)
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
     html = f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -34,10 +36,10 @@ def page(slug, title, desc, body, faq=None, script=""):
 <form class="search" role="search" onsubmit="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Rechercher un calcul…" aria-label="Rechercher un calcul" autocomplete="off"><div id="sr" role="listbox"></div></form>
 <nav><a href="salaire-brut-net.html">Salaire</a><a href="frais-de-notaire.html">Notaire</a><a href="credit-immobilier.html">Crédit</a><a href="index.html#outils">Tous les outils</a></nav></div></header>
 <main class="wrap">{crumb}{body}{faq_html}{rel}{AD if slug not in ('mentions-legales','confidentialite','a-propos','contact') else ''}</main>
-<footer><div class="wrap"><p>© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel.</p>
-<a href="a-propos.html">À propos</a><a href="contact.html">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></footer>
+<footer><div class="wrap"><div class="fcols">{FOOT}<div><h3>SimulMalin</h3><a href="a-propos.html">À propos</a><a href="contact.html">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité et cookies</a></div></div>
+<p class="fine">© 2026 {SITE}. Les résultats sont des estimations indicatives et ne remplacent pas l'avis d'un professionnel. Barèmes vérifiés en novembre 2026.</p></div></footer>
 <script>const eur=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR',maximumFractionDigits:0}}).replace(/\u202f/g,'\u00a0');const eur2=n=>n.toLocaleString('fr-FR',{{style:'currency',currency:'EUR'}}).replace(/\u202f/g,'\u00a0');</script>
-<script src="search.js" defer></script>
+<script src="search.js" defer></script><script src="ui.js"></script>
 {script}</body></html>"""
     open(os.path.join(ROOT, slug + ".html"), "w", encoding="utf-8").write(html)
     return url
@@ -82,24 +84,8 @@ SOURCES = {
  "calcul-tva":'<a href="https://www.impots.gouv.fr" rel="nofollow">impots.gouv.fr</a>',
 }
 
+FOOT = "".join('<div><h3>'+c+'</h3>'+"".join(f'<a href="{t[0]}.html">{t[2]}</a>' for t in l)+'</div>' for c,l in TOOLS)
 urls = []
-
-# ---------- ACCUEIL ----------
-urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, crédit",
- "Calculateurs gratuits et instantanés : salaire brut en net, frais de notaire, mensualités de crédit immobilier. Simple, rapide, sans inscription.",
- """<section class="hero"><div><p class="kicker">Simulateurs indépendants · barèmes 2026 vérifiés</p>
-<h1>Le bon chiffre, <em>avant</em> de signer.</h1>
-<p class="lead">Salaire, achat immobilier, prêt, rupture de contrat : on fait le calcul avec vous, en détaillant chaque ligne et en citant nos sources.</p></div>
-<a class="ticket" href="salaire-2500-euros-brut-en-net.html" style="text-decoration:none;color:inherit"><p>Exemple</p>
-<div class="l"><span>Salaire brut</span><span>2 500 €</span></div><div class="l"><span>Cotisations</span><span>− 521 €</span></div>
-<div class="l"><span>Net avant impôt</span><span class="t">1 979 €</span></div><span style="color:var(--accent);font-size:.9rem">Voir le détail →</span></a></section>
-""" + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
-<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?")]) + """</p>
-<h2>Notre méthode</h2>
-<div class="method"><p><b>Des barèmes officiels.</b> Chaque taux vient d'une source publique (Urssaf, service-public.gouv.fr, impots.gouv.fr) et la date de vérification figure en bas de page.</p>
-<p><b>Un calcul qu'on peut refaire.</b> Nous affichons le détail ligne par ligne : vous voyez d'où vient chaque euro, et vous pouvez le vérifier vous-même.</p>
-<p><b>Rien n'est enregistré.</b> Les montants que vous saisissez restent dans votre navigateur. Pas de compte, pas de formulaire, pas de rappel commercial.</p>
-<p><b>Une erreur ?</b> Écrivez-nous à <a href="mailto:contact@simulmalin.fr">contact@simulmalin.fr</a> : nous corrigeons et indiquons la date de mise à jour.</p></div>"""))
 
 # ---------- SALAIRE ----------
 # Barèmes 2026 (sources : URSSAF, Agirc-Arrco, service-public.fr). PMSS 2026 = 4 005 €.
@@ -132,12 +118,12 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 <option value="nc">Salarié non-cadre (privé)</option><option value="c">Salarié cadre (privé)</option>
 <option value="fp">Fonctionnaire titulaire</option></select></div>
 <div><label for="periode">Période</label><select id="periode"><option value="1">Mensuel</option><option value="12">Annuel</option><option value="h">Horaire (35 h)</option></select></div></div>
-<div class="row"><div><label for="brut">Salaire brut (€)</label><input id="brut" type="number" inputmode="decimal" value="2500"></div>
-<div><label for="net">Salaire net avant impôt (€)</label><input id="net" type="number" inputmode="decimal"></div></div>
+<div class="row"><div><label for="brut">Salaire brut (€)</label><input id="brut" type="number" inputmode="decimal" value="2500" data-range="1000,10000,50" data-suffix="€"></div>
+<div><label for="net">Salaire net avant impôt (€)</label><input id="net" type="number" inputmode="decimal" data-suffix="€"></div></div>
 <div class="row"><div><label for="mut">Mutuelle et prévoyance, part salariale (€ / mois)</label><input id="mut" type="number" step="1" value="0"></div>
 <div><label for="pas">Taux de prélèvement à la source (%)</label><input id="pas" type="number" step="0.1" value="0"></div></div>
 <div class="result" aria-live="polite"><div>Net après impôt</div><div class="big" id="apres">–</div>
-<div class="kv"><span>Net mensuel avant impôt</span><b id="nm">–</b></div>
+<div class="bar" id="bar"></div><div class="kv"><span>Net mensuel avant impôt</span><b id="nm">–</b></div>
 <div class="kv"><span>Net annuel avant impôt</span><b id="na">–</b></div>
 <div class="kv"><span>Cotisations salariales</span><b id="cot">–</b></div></div>
 </div>
@@ -160,7 +146,7 @@ function calc(){const st=$('statut').value,f=per(),mut=+$('mut').value||0;
  if(src==='brut'){const b=+$('brut').value*f;$('net').value=$('brut').value?((b-cotis(b,st)-mut)/f).toFixed(2):''}
  else{const n=+$('net').value*f;$('brut').value=$('net').value?(brutDe(n+mut,st)/f).toFixed(2):''}
  const bm=+$('brut').value*f,nm=bm-cotis(bm,st)-mut,pas=+$('pas').value/100;
- $('nm').textContent=eur2(nm);$('na').textContent=eur(nm*12);$('cot').textContent=eur2(bm-nm)+' / mois';$('apres').textContent=eur2(nm*(1-pas))+' / mois'}
+ $('nm').textContent=eur2(nm);bar('bar',[{l:'Net versé',v:nm*(1-pas),c:'var(--accent)'},{l:'Impôt à la source',v:nm*pas,c:'#c9a227'},{l:'Cotisations',v:cotis(bm,st),c:'#b9b3a5'},{l:'Mutuelle',v:mut,c:'#8c8577'}]);$('na').textContent=eur(nm*12);$('cot').textContent=eur2(bm-nm)+' / mois';$('apres').textContent=eur2(nm*(1-pas))+' / mois'}
 $('brut').oninput=()=>{src='brut';calc()};$('net').oninput=()=>{src='net';calc()};['statut','periode','pas','mut'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
 
@@ -170,13 +156,13 @@ urls.append(page("frais-de-notaire", "Calcul frais de notaire 2026 : simulateur 
  """<h1>Calcul des frais de notaire 2026</h1>
 <p class="lead">Environ 7 à 8 % du prix dans l'ancien, 2 à 3 % dans le neuf. Obtenez le détail exact.</p>
 <div class="card"><div class="row">
-<div><label for="prix">Prix d'achat du bien (€)</label><input id="prix" type="number" value="250000"></div>
+<div><label for="prix">Prix d'achat du bien (€)</label><input id="prix" type="number" value="250000" data-range="50000,1000000,5000" data-suffix="€"></div>
 <div><label for="type">Type de bien</label><select id="type"><option value="ancien">Ancien</option><option value="neuf">Neuf (VEFA)</option></select></div></div>
 <div class="row"><div><label for="dmto">Taux du département (ancien)</label><select id="dmto">
 <option value="0.0631850">Taux relevé (5 %) – 88 départements en 2026</option><option value="0.0580665">Taux de 4,5 % – autres départements et primo-accédants</option><option value="0.0509006">Taux de 3,8 % – Indre</option></select></div>
 <div><label for="mob">Mobilier inclus (€, déductible)</label><input id="mob" type="number" value="0"></div></div>
 <div class="result" aria-live="polite"><div>Frais de notaire estimés</div><div class="big" id="tot">–</div>
-<div class="kv"><span>Droits de mutation (taxes)</span><b id="d">–</b></div>
+<div class="bar" id="bar"></div><div class="kv"><span>Droits de mutation (taxes)</span><b id="d">–</b></div>
 <div class="kv"><span>Émoluments du notaire (TTC)</span><b id="e">–</b></div>
 <div class="kv"><span>Contribution de sécurité immobilière</span><b id="c">–</b></div>
 <div class="kv"><span>Formalités et débours (estimation)</span><b id="f">–</b></div>
@@ -197,7 +183,7 @@ const $=id=>document.getElementById(id);
 function emol(p){const t=[[6500,.0387],[17000,.01596],[60000,.01064],[Infinity,.00799]];let r=0,prev=0;for(const[l,x]of t){if(p>prev)r+=(Math.min(p,l)-prev)*x;prev=l}return r*1.2}
 function calc(){const prix=Math.max(0,+$('prix').value-+$('mob').value),neuf=$('type').value==='neuf';$('dmto').disabled=neuf;
  const d=prix*(neuf?0.00715:+$('dmto').value),e=emol(prix),c=Math.max(15,prix*0.001),f=1200,t=d+e+c+f;
- $('d').textContent=eur(d);$('e').textContent=eur(e);$('c').textContent=eur(c);$('f').textContent=eur(f);$('tot').textContent=eur(t);
+ $('d').textContent=eur(d);$('e').textContent=eur(e);$('c').textContent=eur(c);$('f').textContent=eur(f);$('tot').textContent=eur(t);bar('bar',[{l:'Taxes',v:d,c:'#b9b3a5'},{l:'Notaire',v:e,c:'var(--accent)'},{l:'Débours',v:f,c:'#c9a227'},{l:'Sécurité immo.',v:c,c:'#8c8577'}]);
  $('pct').textContent=(+$('prix').value?(t/+$('prix').value*100).toFixed(2).replace('.',','):0)+' %'}
 ['prix','type','dmto','mob'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
@@ -208,13 +194,13 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
  """<h1>Simulateur de crédit immobilier</h1>
 <p class="lead">Mensualité, coût total et tableau d'amortissement, mis à jour en direct.</p>
 <div class="card"><div class="row">
-<div><label for="cap">Montant emprunté (€)</label><input id="cap" type="number" value="200000"></div>
-<div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="1" max="30"></div></div>
-<div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.70"></div>
+<div><label for="cap">Montant emprunté (€)</label><input id="cap" type="number" value="200000" data-range="20000,800000,5000" data-suffix="€"></div>
+<div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="1" max="30" data-range="5,30,1" data-suffix="ans"></div></div>
+<div class="row"><div><label for="taux">Taux nominal annuel (%)</label><input id="taux" type="number" step="0.01" value="3.70" data-range="1,7,0.05" data-suffix="%"></div>
 <div><label for="ass">Taux d'assurance annuel (%)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
 <label for="rev">Revenus nets mensuels du foyer (€, optionnel)</label><input id="rev" type="number" value="">
 <div class="result" aria-live="polite"><div>Mensualité (assurance incluse)</div><div class="big" id="m">–</div>
-<div class="kv"><span>Dont assurance</span><b id="ma">–</b></div>
+<div class="bar" id="bar"></div><div class="kv"><span>Dont assurance</span><b id="ma">–</b></div>
 <div class="kv"><span>Coût total des intérêts</span><b id="ci">–</b></div>
 <div class="kv"><span>Coût total de l'assurance</span><b id="ca">–</b></div>
 <div class="kv"><span>Coût total du crédit</span><b id="ct">–</b></div>
@@ -233,7 +219,7 @@ urls.append(page("credit-immobilier", "Simulateur crédit immobilier 2026 : mens
 const $=id=>document.getElementById(id);
 function calc(){const C=+$('cap').value,n=Math.round(+$('duree').value*12),r=+$('taux').value/100/12,a=C*(+$('ass').value/100)/12;
  if(!C||!n)return;const m=r?C*r/(1-Math.pow(1+r,-n)):C/n,tot=m+a;
- $('m').textContent=eur2(tot);$('ma').textContent=eur2(a);$('ci').textContent=eur(m*n-C);$('ca').textContent=eur(a*n);$('ct').textContent=eur(m*n-C+a*n);
+ $('m').textContent=eur2(tot);$('ma').textContent=eur2(a);$('ci').textContent=eur(m*n-C);$('ca').textContent=eur(a*n);$('ct').textContent=eur(m*n-C+a*n);bar('bar',[{l:'Capital',v:C,c:'var(--accent)'},{l:'Intérêts',v:m*n-C,c:'#c9a227'},{l:'Assurance',v:a*n,c:'#b9b3a5'}]);
  const rev=+$('rev').value;$('te').textContent=rev?(tot/rev*100).toFixed(1)+' %'+(tot/rev>0.35?' (au-delà de 35 %)':''):'Renseignez vos revenus';
  let k=C,rows='';for(let y=1;y*12<=n+11&&k>0.5;y++){let cp=0,it=0;for(let i=0;i<12&&k>0.5;i++){const x=k*r,p=m-x;it+=x;cp+=p;k-=p}rows+=`<tr><td>${y}</td><td>${eur(cp)}</td><td>${eur(it)}</td><td>${eur(Math.max(0,k))}</td></tr>`}
  document.querySelector('#tab tbody').innerHTML=rows}
@@ -367,13 +353,13 @@ urls.append(page("capacite-emprunt", "Capacité d'emprunt 2026 : combien pouvez-
  """<h1>Calcul de capacité d'emprunt</h1>
 <p class="lead">Combien la banque peut-elle vous prêter ? Estimation instantanée selon la règle des 35 % d'endettement.</p>
 <div class="card"><div class="row">
-<div><label for="rev">Revenus nets mensuels du foyer (€)</label><input id="rev" type="number" value="4000"></div>
+<div><label for="rev">Revenus nets mensuels du foyer (€)</label><input id="rev" type="number" value="4000" data-range="1000,15000,100" data-suffix="€"></div>
 <div><label for="chg">Crédits en cours (€ / mois)</label><input id="chg" type="number" value="0"></div></div>
-<div class="row"><div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="5" max="27"></div>
+<div class="row"><div><label for="duree">Durée (années)</label><input id="duree" type="number" value="25" min="5" max="27" data-range="5,27,1" data-suffix="ans"></div>
 <div><label for="taux">Taux nominal (%)</label><input id="taux" type="number" step="0.01" value="3.70"></div>
 <div><label for="ass">Assurance (% par an)</label><input id="ass" type="number" step="0.01" value="0.30"></div></div>
 <div class="result" aria-live="polite"><div>Vous pouvez emprunter environ</div><div class="big" id="cap">–</div>
-<div class="kv"><span>Mensualité maximale (assurance incluse)</span><b id="mm">–</b></div>
+<div class="bar" id="bar"></div><div class="kv"><span>Mensualité maximale (assurance incluse)</span><b id="mm">–</b></div>
 <div class="kv"><span>Reste à vivre après mensualités</span><b id="rav">–</b></div>
 <div class="kv"><span>Budget total avec 10 % d'apport</span><b id="bud">–</b></div></div></div>
 """ + AD + """
@@ -390,7 +376,7 @@ urls.append(page("capacite-emprunt", "Capacité d'emprunt 2026 : combien pouvez-
 const $=id=>document.getElementById(id);
 function calc(){const R=+$('rev').value,ch=+$('chg').value,n=Math.round(+$('duree').value*12),r=+$('taux').value/100/12,a=+$('ass').value/100/12;
  const mm=Math.max(0,R*0.35-ch);if(!n){return}const f=r?(r/(1-Math.pow(1+r,-n))):1/n,C=mm/(f+a);
- $('cap').textContent=eur(Math.round(C/1000)*1000);$('mm').textContent=eur2(mm);$('rav').textContent=eur(R-mm-ch)+' / mois';$('bud').textContent=eur(Math.round(C/0.9/1000)*1000)}
+ $('cap').textContent=eur(Math.round(C/1000)*1000);$('mm').textContent=eur2(mm);$('rav').textContent=eur(R-mm-ch)+' / mois';bar('bar',[{l:'Crédit immobilier',v:mm,c:'var(--accent)'},{l:'Autres crédits',v:ch,c:'#c9a227'},{l:'Reste à vivre',v:R-mm-ch,c:'#b9b3a5'}]);$('bud').textContent=eur(Math.round(C/0.9/1000)*1000)}
 ['rev','chg','duree','taux','ass'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
 
@@ -463,6 +449,31 @@ for c in CAPITAUX:
 <p class="note">Taux moyens indicatifs hors assurance en novembre 2026 : {fr(TAUX_D[15],2)} % sur 15 ans, {fr(TAUX_D[20],2)} % sur 20 ans, {fr(TAUX_D[25],2)} % sur 25 ans. Votre taux réel dépend de votre profil et de votre banque.</p>""",
          faq=[(f"Quelle mensualité pour {fr(c)} € sur {y} ans ?",f"Environ {fr(tot)} € par mois avec une assurance à 0,30 %, au taux de {fr(t,2)} %."),
               (f"Quel salaire pour emprunter {fr(c)} € sur {y} ans ?",f"Au moins {fr(revmin)} € net par mois pour le foyer, pour respecter le plafond d'endettement de 35 %.")]))
+
+# ---------- ACCUEIL ----------
+urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, crédit",
+ "Calculateurs gratuits et instantanés : salaire brut en net, frais de notaire, mensualités de crédit immobilier. Simple, rapide, sans inscription.",
+ """<section class="hero"><div><p class="kicker">Simulateurs indépendants · barèmes 2026 vérifiés</p>
+<h1>Le bon chiffre, <em>avant</em> de signer.</h1>
+<p class="lead">Salaire, achat immobilier, prêt, rupture de contrat : on fait le calcul avec vous, en détaillant chaque ligne et en citant nos sources.</p></div>
+<div class="ticket live"><p>Essayez : votre salaire en net</p>
+<label for="hb">Salaire brut mensuel</label><span class="suffix" data-s="€"><input id="hb" type="number" inputmode="decimal" value="2500"></span>
+<div class="seg" role="radiogroup" aria-label="Statut"><button type="button" data-st="nc" aria-pressed="true">Non-cadre</button><button type="button" data-st="c" aria-pressed="false">Cadre</button><button type="button" data-st="fp" aria-pressed="false">Fonctionnaire</button></div>
+<div class="l"><span>Cotisations</span><span id="hc">–</span></div>
+<div class="l"><span>Net avant impôt</span><span class="t" id="hn">–</span></div>
+<a href="salaire-brut-net.html">Calcul détaillé (mutuelle, impôt, annuel) →</a></div></section>
+""" + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
+<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?")]) + """</p>
+<h2>Notre méthode</h2>
+<div class="method"><p><b>Des barèmes officiels.</b> Chaque taux vient d'une source publique (Urssaf, service-public.gouv.fr, impots.gouv.fr) et la date de vérification figure en bas de page.</p>
+<p><b>Un calcul qu'on peut refaire.</b> Nous affichons le détail ligne par ligne : vous voyez d'où vient chaque euro, et vous pouvez le vérifier vous-même.</p>
+<p><b>Rien n'est enregistré.</b> Les montants que vous saisissez restent dans votre navigateur. Pas de compte, pas de formulaire, pas de rappel commercial.</p>
+<p><b>Une erreur ?</b> Écrivez-nous à <a href="mailto:contact@simulmalin.fr">contact@simulmalin.fr</a> : nous corrigeons et indiquons la date de mise à jour.</p></div>""", script="""<script>""" + COTIS_JS + """
+let hst='nc';const hb=document.getElementById('hb');
+function h(){const b=+hb.value||0,c=cotis(b,hst);document.getElementById('hc').textContent='− '+eur(c);document.getElementById('hn').textContent=eur(b-c)}
+hb.oninput=h;document.querySelectorAll('.seg button').forEach(x=>x.onclick=()=>{hst=x.dataset.st;document.querySelectorAll('.seg button').forEach(y=>y.setAttribute('aria-pressed',y===x));h()});h();
+</script>"""))
+
 
 page("a-propos","À propos de SimulMalin","SimulMalin propose des simulateurs gratuits et pédagogiques pour les calculs du quotidien : salaire, immobilier, crédit, TVA.",
  """<h1>À propos de SimulMalin</h1><div class="card"><p>SimulMalin est né d'un constat simple : les calculs du quotidien (salaire net, frais de notaire, mensualités de crédit…) sont souvent mal expliqués, éparpillés ou noyés sous la publicité.</p>
