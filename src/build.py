@@ -22,7 +22,7 @@ def page(slug, title, desc, body, faq=None, script=""):
     tool = slug in ICONS
     crumb = f'<nav class="crumb"><a href="index.html">Accueil</a> › <span>{title.split(":")[0].split("–")[0].strip()}</span> <em class="upd">Mis à jour : novembre 2026</em></nav>' if tool else ""
     rel = ((f'<p class="sources">Sources : {SOURCES[slug]}. Barèmes vérifiés en novembre 2026.</p>' if slug in SOURCES else "") + related(slug)) if tool else ""
-    if slug in ("salaire-brut-net","frais-de-notaire","credit-immobilier","capacite-emprunt","indemnite-licenciement","calcul-tva","jours-entre-deux-dates"):
+    if slug in ("salaire-brut-net","frais-de-notaire","credit-immobilier","capacite-emprunt","indemnite-licenciement","calcul-tva","jours-entre-deux-dates","impot-sur-le-revenu"):
         body = body.replace('<div class="card">', '<div class="card calc">', 1)
     url = f"{DOMAIN}/{'' if slug=='index' else slug+'.html'}"
     html = f"""<!doctype html>
@@ -47,6 +47,7 @@ def page(slug, title, desc, body, faq=None, script=""):
 TOOLS = [
  ("Emploi et salaire", [
   ("salaire-brut-net","💶","Salaire brut → net","Convertissez votre salaire mensuel, annuel ou horaire.","#e8f0fe"),
+  ("impot-sur-le-revenu","🧮","Impôt sur le revenu","Montant 2026, parts, décote, taux moyen et marginal.","#e8eaf6"),
   ("indemnite-licenciement","📄","Indemnité de licenciement","Minimum légal, aussi valable en rupture conventionnelle.","#fdecea")]),
  ("Immobilier", [
   ("frais-de-notaire","🏠","Frais de notaire","Estimez les frais d'achat dans l'ancien ou le neuf.","#e6f4ea"),
@@ -59,6 +60,7 @@ TOOLS = [
 ]
 ICONS = {
  "salaire-brut-net":('<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>',"#1f6feb","#e8f0fe"),
+ "impot-sur-le-revenu":('<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9.5 17l5-6"/><circle cx="10" cy="11.5" r="1"/><circle cx="14" cy="16.5" r="1"/>',"#3949ab","#e8eaf6"),
  "indemnite-licenciement":('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',"#d93025","#fdecea"),
  "frais-de-notaire":('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',"#0f9d58","#e6f4ea"),
  "credit-immobilier":('<path d="M3 21h18M5 21V10M19 21V10M9.5 21V10M14.5 21V10M2 10l10-6 10 6z"/>',"#b06000","#fef7e0"),
@@ -82,6 +84,7 @@ SOURCES = {
  "credit-immobilier":'<a href="https://www.banque-france.fr" rel="nofollow">Banque de France</a> et recommandations du HCSF',
  "capacite-emprunt":'<a href="https://www.banque-france.fr" rel="nofollow">Banque de France</a> et recommandations du HCSF',
  "calcul-tva":'<a href="https://www.impots.gouv.fr" rel="nofollow">impots.gouv.fr</a>',
+ "impot-sur-le-revenu":'<a href="https://www.service-public.gouv.fr/particuliers/vosdroits/F1419" rel="nofollow">service-public.gouv.fr</a> (loi de finances pour 2026) et <a href="https://www.impots.gouv.fr" rel="nofollow">impots.gouv.fr</a>',
 }
 
 FOOT = "".join('<div><h3>'+c+'</h3>'+"".join(f'<a href="{t[0]}.html">{t[2]}</a>' for t in l)+'</div>' for c,l in TOOLS)
@@ -132,7 +135,7 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 <h2>Comment passer du brut au net ?</h2>
 <p>Le salaire net correspond au salaire brut diminué des cotisations salariales. Dans le privé en 2026, elles comprennent l'assurance vieillesse (6,90 % jusqu'au plafond de la Sécurité sociale de 4 005 € par mois, plus 0,40 % sur tout le salaire), la retraite complémentaire Agirc-Arrco (3,15 % + 0,86 % jusqu'au plafond, 8,64 % + 1,08 % au-delà) et la CSG-CRDS (9,70 % sur 98,25 % du brut). Cela représente environ 21 % du brut, auxquels s'ajoute la part salariale de votre mutuelle et de votre prévoyance.</p>
 <p>Un cadre paie en plus la cotisation APEC (0,024 %) : sous le plafond de 4 005 €, son net est donc presque identique à celui d'un non-cadre. Pour un fonctionnaire titulaire, la retenue pour pension (11,10 % du traitement indiciaire), la retraite additionnelle sur les primes (5 %) et la CSG-CRDS représentent environ 19 % du brut.</p>
-<p>Depuis 2019, l'impôt sur le revenu est en plus prélevé à la source. Le montant versé sur votre compte est donc le « net après impôt ».</p>
+<p>Depuis 2019, l'impôt sur le revenu est en plus prélevé à la source. Le montant versé sur votre compte est donc le « net après impôt ». Pour estimer votre impôt annuel et votre taux, utilisez notre <a href="impot-sur-le-revenu.html">calculateur d'impôt sur le revenu</a>.</p>
 <p class="note">Estimation indicative avec les taux 2026 du régime général, hors mutuelle si vous ne la renseignez pas. Pour la fonction publique, le calcul suppose des primes égales à 20 % du brut. Votre fiche de paie peut différer selon votre convention collective, votre prévoyance et vos avantages en nature.</p>""",
  faq=[("Combien fait 2 000 € brut en net ?",f"Pour un salarié du privé, cadre ou non-cadre, 2 000 € brut par mois donnent environ {fr(net(2000,'nc'))} € net avant impôt en 2026, avant la part salariale de la mutuelle d'entreprise."),
       ("Quelle différence entre net avant et après impôt ?","Le net avant impôt sert de base au prélèvement à la source. Le net après impôt est ce que vous recevez réellement sur votre compte."),
@@ -288,6 +291,95 @@ function calc(){const s=+$('sal').value,a=+$('ans').value+ +$('mois').value/12;
 if(a<8/12){$('ind').textContent=eur(0);$('bar').innerHTML='';$('msg').textContent="Moins de 8 mois d'ancienneté : pas d'indemnité légale.";return}
 const i=s*(Math.min(a,10)/4+Math.max(0,a-10)/3);$('ind').textContent=eur(i);bar('bar',[{l:'10 premières années',v:s*Math.min(a,10)/4,c:'var(--accent)'},{l:'Au-delà de 10 ans',v:s*Math.max(0,a-10)/3,c:'#c9a227'}]);$('msg').textContent='Soit '+(i/s).toLocaleString('fr-FR',{maximumFractionDigits:2})+' mois de salaire.'}
 ['sal','ans','mois'].forEach(i=>$(i).oninput=calc);calc();
+</script>"""))
+
+
+# ---------- IMPÔT SUR LE REVENU ----------
+# Barème 2026 sur les revenus 2025 (loi de finances pour 2026), vérifié le 16/11/2026 sur service-public.gouv.fr
+# F1419 (tranches), F2705 et F34328 (plafonnement QF, décote, seuil de recouvrement), F1989 (abattement 10 %).
+IR_TR = [(11600,0.0),(29579,0.11),(84577,0.30),(181917,0.41),(None,0.45)]
+IR_QF, IR_QF_ISOLE = 1807, 4262          # avantage max par demi-part ; 2 premières demi-parts d'un parent isolé
+IR_DEC = {1:(1982,897), 2:(3277,1483)}  # seuil d'impôt brut, montant de la décote ; taux 45,25 %
+ABAT_MIN, ABAT_MAX = 509, 14555
+def ir_bareme(r, parts):
+    q = r/parts; t = 0; lo = 0
+    for hi, tx in IR_TR:
+        if hi is None or q > lo: t += (min(q, hi) - lo if hi else q - lo) * tx if q > lo else 0
+        if hi is None or q <= hi: break
+        lo = hi
+    return t*parts
+def ir_parts(couple, enf, isole):
+    p = (2 if couple else 1) + 0.5*min(enf,2) + max(enf-2,0)
+    if isole and not couple and enf > 0: p += 0.5
+    return p
+def abat(sal): return min(sal, max(ABAT_MIN, min(ABAT_MAX, 0.1*sal))) if sal > 0 else 0
+def impot(sal1, sal2=0, autres=0, couple=False, enf=0, isole=False):
+    r = max(0, sal1 - abat(sal1) + (sal2 - abat(sal2) if couple else 0) + autres)
+    base = 2 if couple else 1; parts = ir_parts(couple, enf, isole)
+    h = round((parts - base)*2)
+    plaf = (IR_QF_ISOLE + max(h-2,0)*IR_QF) if (isole and not couple and enf>0) else h*IR_QF
+    brut = max(ir_bareme(r, parts), ir_bareme(r, base) - plaf)
+    seuil, dmax = IR_DEC[base]
+    dec = max(0, dmax - 0.4525*brut) if brut < seuil else 0
+    net = max(0, brut - dec)
+    if net < 61: net = 0
+    return round(net), r, parts
+IR_JS = """const TR=[[11600,0],[29579,.11],[84577,.30],[181917,.41],[Infinity,.45]];
+function bar_(r,p){const q=r/p;let t=0,lo=0;for(const[hi,tx]of TR){if(q>lo)t+=(Math.min(q,hi)-lo)*tx;if(q<=hi)break;lo=hi}return t*p}
+function abat(s){return s>0?Math.min(s,Math.max(509,Math.min(14555,.1*s))):0}
+function impot(s1,s2,au,cpl,enf,iso){const r=Math.max(0,s1-abat(s1)+(cpl?s2-abat(s2):0)+au),base=cpl?2:1;
+let p=base+.5*Math.min(enf,2)+Math.max(enf-2,0);const pi=iso&&!cpl&&enf>0;if(pi)p+=.5;const h=Math.round((p-base)*2);
+const plaf=pi?4262+Math.max(h-2,0)*1807:h*1807,sans=bar_(r,p),brut=Math.max(sans,bar_(r,base)-plaf);
+const[seuil,dm]=cpl?[3277,1483]:[1982,897],dec=brut<seuil?Math.max(0,dm-.4525*brut):0;let net=Math.max(0,brut-dec);const nonrec=net>0&&net<61;if(nonrec)net=0;
+let tmi=0;for(const[hi,tx]of TR){tmi=tx;if(r/p<=hi)break}
+return{r,p,brut,dec:Math.min(dec,brut),net:Math.round(net),plafonne:brut>sans+0.5,tmi,nonrec}}"""
+_e1 = impot(30000); _e2 = impot(30000,30000,0,True,2); _e3 = impot(40000)
+urls.append(page("impot-sur-le-revenu", "Calcul impôt sur le revenu 2026 : simulateur gratuit (revenus 2025)",
+ "Estimez votre impôt sur le revenu 2026 sur les revenus 2025 : barème officiel, parts fiscales, plafonnement du quotient familial, décote, taux moyen et taux marginal.",
+ """<h1>Calcul de l'impôt sur le revenu 2026</h1>
+<p class="lead">Simulation de l'impôt payé en 2026 sur les revenus de 2025, avec le barème de la loi de finances pour 2026.</p>
+<div class="card"><div class="row">
+<div><label for="sit">Situation</label><select id="sit"><option value="1">Célibataire, divorcé(e) ou veuf(ve)</option><option value="2">Marié(e) ou pacsé(e)</option></select></div>
+<div><label for="enf">Enfants à charge</label><input id="enf" type="number" value="0" min="0" max="10" data-range="0,6,1" data-suffix="enf."></div></div>
+<div class="row"><div><label for="s1">Salaires nets imposables 2025, déclarant 1 (€ / an)</label><input id="s1" type="number" inputmode="decimal" value="30000" data-range="0,150000,500" data-suffix="€"></div>
+<div id="w2"><label for="s2">Salaires nets imposables 2025, déclarant 2 (€ / an)</label><input id="s2" type="number" inputmode="decimal" value="0" data-range="0,150000,500" data-suffix="€"></div></div>
+<div class="row"><div><label for="au">Autres revenus imposables, après abattements (€ / an)</label><input id="au" type="number" value="0" data-suffix="€"></div>
+<div id="wiso"><label for="iso">Vous vivez seul(e) avec vos enfants (case T)</label><select id="iso"><option value="0">Non</option><option value="1">Oui, parent isolé</option></select></div></div>
+<div class="result" aria-live="polite"><div>Impôt sur le revenu 2026</div><div class="big" id="ir">–</div>
+<div class="bar" id="bar"></div>
+<div class="kv"><span>Revenu net imposable</span><b id="rni">–</b></div>
+<div class="kv"><span>Nombre de parts</span><b id="np">–</b></div>
+<div class="kv"><span>Impôt brut (après plafonnement)</span><b id="ib">–</b></div>
+<div class="kv"><span>Décote</span><b id="dc">–</b></div>
+<div class="kv"><span>Taux moyen d'imposition</span><b id="tm">–</b></div>
+<div class="kv"><span>Taux marginal (tranche)</span><b id="tmi">–</b></div>
+<p class="note" id="msg"></p></div></div>
+""" + AD + """
+<h2>Le barème 2026 de l'impôt sur le revenu</h2>
+<p>Le barème appliqué aux revenus de 2025, fixé par la loi de finances pour 2026, s'applique au revenu imposable divisé par le nombre de parts (le quotient familial) :</p>
+<div class="tablewrap"><table><thead><tr><th>Revenu imposable par part</th><th>Taux</th></tr></thead><tbody>
+<tr><td>Jusqu'à 11 600 €</td><td>0 %</td></tr><tr><td>De 11 601 € à 29 579 €</td><td>11 %</td></tr><tr><td>De 29 580 € à 84 577 €</td><td>30 %</td></tr><tr><td>De 84 578 € à 181 917 €</td><td>41 %</td></tr><tr><td>Plus de 181 917 €</td><td>45 %</td></tr></tbody></table></div>
+<p>Chaque taux ne s'applique qu'à la fraction du revenu comprise dans sa tranche : passer dans la tranche à 30 % n'augmente pas l'impôt sur tout votre revenu. Le résultat est ensuite multiplié par le nombre de parts.</p>
+<h2>Comment est calculé votre impôt ?</h2>
+<p><b>1. Le revenu net imposable.</b> Vos salaires nets imposables (le cumul « net imposable » de votre fiche de paie de décembre) sont diminués de l'abattement forfaitaire de 10 % pour frais professionnels, d'au moins 509 € et d'au plus 14 555 € par personne. Pour passer de votre salaire brut au net, utilisez notre <a href="salaire-brut-net.html">convertisseur brut en net</a>.</p>
+<p><b>2. Le nombre de parts.</b> Une personne seule a 1 part, un couple marié ou pacsé 2 parts. Les deux premiers enfants donnent chacun une demi-part, puis chaque enfant à partir du troisième une part entière. Un parent qui vit seul avec ses enfants (case T) a une demi-part de plus.</p>
+<p><b>3. Le plafonnement du quotient familial.</b> L'économie d'impôt apportée par chaque demi-part supplémentaire est limitée à 1 807 €. Pour un parent isolé, les deux premières demi-parts liées au premier enfant sont plafonnées ensemble à 4 262 €.</p>
+<p><b>4. La décote.</b> Si votre impôt brut ne dépasse pas 1 982 € (personne seule) ou 3 277 € (couple), il est diminué d'une décote égale à 897 € (ou 1 483 € pour un couple) moins 45,25 % de l'impôt brut. Enfin, un impôt inférieur à 61 € n'est pas mis en recouvrement.</p>
+<p class="note">Estimation indicative. Ne sont pas pris en compte : les réductions et crédits d'impôt (emploi à domicile, garde d'enfants, dons…), les frais réels, les abattements pour personnes âgées ou invalides, les demi-parts spéciales (invalidité, ancien combattant), la garde alternée, les revenus soumis au prélèvement forfaitaire unique et la contribution exceptionnelle sur les hauts revenus.</p>""",
+ faq=[("Combien d'impôt pour 30 000 € de salaire ?",f"Pour une personne seule sans enfant avec 30 000 € de salaires nets imposables en 2025, le revenu imposable est de {fr(_e1[1])} € après l'abattement de 10 %. L'impôt 2026 est d'environ {fr(_e1[0])} €, décote comprise."),
+      ("Combien paie un couple avec deux enfants ?",f"Un couple marié ou pacsé avec deux enfants et 60 000 € de salaires nets imposables (30 000 € chacun) a 3 parts et un revenu imposable de {fr(_e2[1])} €. Son impôt 2026 est d'environ {fr(_e2[0])} €."),
+      ("Quelle est la différence entre taux marginal et taux moyen ?",f"Le taux marginal est celui de la tranche la plus haute atteinte par votre quotient familial : il s'applique au dernier euro gagné. Le taux moyen rapporte l'impôt à votre revenu imposable. Avec 40 000 € de salaires, une personne seule est dans la tranche à 30 % mais son taux moyen n'est que d'environ {fr(_e3[0]/_e3[1]*100,1)} %."),
+      ("À partir de quel revenu paie-t-on l'impôt ?","Pour une personne seule sans enfant, grâce à la décote et au seuil de recouvrement de 61 €, l'impôt devient payable à partir d'environ 17 600 € de revenu net imposable, soit environ 19 560 € de salaires nets imposables."),
+      ("Ce montant correspond-il à mon prélèvement à la source ?","Le prélèvement à la source est un acompte calculé avec un taux fixé d'après votre dernière déclaration. L'impôt réel est calculé au printemps lors de votre déclaration : la différence est remboursée ou prélevée à la fin de l'été.")],
+ script="""<script>
+const $=id=>document.getElementById(id);""" + IR_JS + """
+function calc(){const cpl=$('sit').value==='2',enf=Math.max(0,Math.round(+$('enf').value||0));$('w2').style.display=cpl?'':'none';$('wiso').style.display=(!cpl&&enf>0)?'':'none';
+const x=impot(+$('s1').value||0,+$('s2').value||0,+$('au').value||0,cpl,enf,$('iso').value==='1');
+$('ir').textContent=eur(x.net);$('rni').textContent=eur(x.r);$('np').textContent=x.p.toLocaleString('fr-FR');$('ib').textContent=eur(x.brut);$('dc').textContent=x.dec>0?'− '+eur(x.dec):'aucune';
+$('tm').textContent=(x.r?x.net/x.r*100:0).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';$('tmi').textContent=Math.round(x.tmi*100)+' %';
+bar('bar',[{l:'Revenu après impôt',v:x.r-x.net,c:'var(--accent)'},{l:'Impôt',v:x.net,c:'#c9a227'}]);
+$('msg').textContent=x.nonrec?"Impôt inférieur à 61 € : il n'est pas mis en recouvrement.":(x.plafonne?"Le plafonnement du quotient familial s'applique : l'avantage lié à vos parts supplémentaires est limité.":'')}
+['sit','enf','s1','s2','au','iso'].forEach(i=>$(i).oninput=calc);calc();
 </script>"""))
 
 # ---------- DATES ----------
@@ -463,7 +555,7 @@ urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, c
 <div class="l"><span>Net avant impôt</span><span class="t" id="hn">–</span></div>
 <a href="salaire-brut-net.html">Calcul détaillé (mutuelle, impôt, annuel) →</a></div></section>
 """ + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
-<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?")]) + """</p>
+<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?"),("impot-sur-le-revenu","Calcul impôt 2026")]) + """</p>
 <h2>Notre méthode</h2>
 <div class="method"><p><b>Des barèmes officiels.</b> Chaque taux vient d'une source publique (Urssaf, service-public.gouv.fr, impots.gouv.fr) et la date de vérification figure en bas de page.</p>
 <p><b>Un calcul qu'on peut refaire.</b> Nous affichons le détail ligne par ligne : vous voyez d'où vient chaque euro, et vous pouvez le vérifier vous-même.</p>
