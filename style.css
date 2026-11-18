@@ -66,6 +66,8 @@ header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 9
 .calc>.result{grid-column:2;grid-row:1/span 30;position:sticky;top:84px;margin-top:12px}
 @media(max-width:780px){.calc{display:block;padding:18px}.calc>.result{position:static}}
 .calc .row{grid-template-columns:1fr 1fr}
+/* aligne les champs d'une même ligne quand un libellé passe sur deux lignes */
+.calc .row{row-gap:0}.calc .row>div{display:grid;grid-row:span 3;grid-template-rows:subgrid;align-content:start;min-width:0}.calc .row>div>label{align-self:end}
 @media(max-width:480px){.calc .row{grid-template-columns:1fr}}
 .result{background:var(--bg)}
 .result>div:first-child:not(.big){font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
