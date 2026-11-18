@@ -132,6 +132,7 @@ urls.append(page("salaire-brut-net", "Salaire brut en net 2026 : calculateur gra
 </div>
 """ + AD + """
 <h2>Montants les plus recherchés</h2><p class="chips">""" + "".join(f'<a href="salaire-{m}-euros-brut-en-net.html">{m} € brut</a>' for m in range(1500,5001,100)) + """</p>
+<h2>Net en brut : les montants les plus recherchés</h2><p class="chips">""" + "".join(f'<a href="salaire-{n}-euros-net-en-brut.html">{n} € net</a>' for n in range(1200,4001,100)) + """</p>
 <h2>Comment passer du brut au net ?</h2>
 <p>Le salaire net correspond au salaire brut diminué des cotisations salariales. Dans le privé en 2026, elles comprennent l'assurance vieillesse (6,90 % jusqu'au plafond de la Sécurité sociale de 4 005 € par mois, plus 0,40 % sur tout le salaire), la retraite complémentaire Agirc-Arrco (3,15 % + 0,86 % jusqu'au plafond, 8,64 % + 1,08 % au-delà) et la CSG-CRDS (9,70 % sur 98,25 % du brut). Cela représente environ 21 % du brut, auxquels s'ajoute la part salariale de votre mutuelle et de votre prévoyance.</p>
 <p>Un cadre paie en plus la cotisation APEC (0,024 %) : sous le plafond de 4 005 €, son net est donc presque identique à celui d'un non-cadre. Pour un fonctionnaire titulaire, la retenue pour pension (11,10 % du traitement indiciaire), la retraite additionnelle sur les primes (5 %) et la CSG-CRDS représentent environ 19 % du brut.</p>
@@ -406,13 +407,20 @@ document.querySelectorAll('input').forEach(i=>i.oninput=calc);calc();
 
 # ---------- PAGES « X € BRUT EN NET » ----------
 STATUTS = [("Non-cadre (privé)","nc"),("Cadre (privé)","c"),("Fonctionnaire titulaire","fp")]
-MONTANTS = list(range(1500,5001,100))
+MONTANTS = list(range(1500,4001,50)) + list(range(4100,5001,100)) + [5500,6000,6500,7000,8000,10000]
 def sal_slug(m): return f"salaire-{m}-euros-brut-en-net"
+def net_slug(n): return f"salaire-{n}-euros-net-en-brut"
+def brut_de(n,st):
+    lo,hi=n,n*2
+    for _ in range(60):
+        mid=(lo+hi)/2
+        lo,hi=(mid,hi) if net(mid,st)<n else (lo,mid)
+    return (lo+hi)/2
 for m in MONTANTS:
     rows="".join(f"<tr><td>{st}</td><td>{fr(net(m,k))}&nbsp;€</td><td>{fr(net(m,k)*12)}&nbsp;€</td><td>{fr(net(m,k)/151.67,2)}&nbsp;€</td></tr>" for st,k in STATUTS)
     nc=net(m,'nc'); ca=net(m,'c'); fp=net(m,'fp')
     pct=cotis(m,'nc')/m*100
-    voisins=" · ".join(f'<a href="{sal_slug(v)}.html">{fr(v)} € brut</a>' for v in (m-200,m-100,m+100,m+200) if v in MONTANTS)
+    i=MONTANTS.index(m);voisins=" · ".join(f'<a href="{sal_slug(v)}.html">{fr(v)} € brut</a>' for v in MONTANTS[max(0,i-2):i]+MONTANTS[i+1:i+3])+f' · <a href="{net_slug(round(net(m,"nc")/100)*100)}.html">Et dans l\'autre sens : {fr(round(net(m,"nc")/100)*100)} € net en brut</a>' if 1200<=round(net(m,"nc")/100)*100<=4000 else " · ".join(f'<a href="{sal_slug(v)}.html">{fr(v)} € brut</a>' for v in MONTANTS[max(0,i-2):i]+MONTANTS[i+1:i+3])
     smic = (f"<p>À noter : {fr(m)} € brut est inférieur au SMIC mensuel à temps plein ({fr(SMIC,2)} € brut depuis le 1er juin 2026). "
             f"Ce montant correspond donc à un temps partiel, à un contrat d'apprentissage ou à un salaire d'avant la dernière revalorisation.</p>") if m < SMIC else ""
     if m <= PMSS:
@@ -438,6 +446,33 @@ for m in MONTANTS:
 <p class="note">Estimation indicative avec les taux de cotisations 2026 du régime général. Le montant exact dépend de votre convention collective, de votre mutuelle, de votre prévoyance et de vos avantages.</p>""",
      faq=[(f"{fr(m)} € brut, ça fait combien en net ?",f"Environ {fr(nc)} € net par mois pour un non-cadre, {fr(ca)} € pour un cadre et {fr(fp)} € pour un fonctionnaire titulaire, avant impôt et avant mutuelle."),
           (f"Quel est le salaire net annuel pour {fr(m)} € brut par mois ?",f"Environ {fr(nc*12)} € net par an pour un non-cadre, sur 12 mois.")]))
+
+# ---------- PAGES « X € NET EN BRUT » ----------
+NETS = list(range(1200,4001,100))
+for n in NETS:
+    bn=brut_de(n,'nc'); bc=brut_de(n,'c'); bf=brut_de(n,'fp')
+    rows="".join(f"<tr><td>{st}</td><td>{fr(brut_de(n,k))}&nbsp;€</td><td>{fr(brut_de(n,k)*12)}&nbsp;€</td><td>{fr(brut_de(n,k)/151.67,2)}&nbsp;€</td></tr>" for st,k in STATUTS)
+    vo=" · ".join(f'<a href="{net_slug(v)}.html">{fr(v)} € net</a>' for v in (n-200,n-100,n+100,n+200) if v in NETS)
+    near=min(MONTANTS,key=lambda x:abs(x-bn))
+    smic=(f"<p>Pour comparaison, le SMIC mensuel à temps plein est de {fr(SMIC,2)} € brut depuis le 1er juin 2026, soit environ {fr(net(SMIC,'nc'))} € net. "
+          f"Un net de {fr(n)} € correspond donc à un temps partiel ou à un salaire inférieur au minimum légal à temps plein.</p>") if bn<SMIC else ""
+    urls.append(page(net_slug(n), f"{fr(n)} € net en brut : quel salaire brut en 2026 ?",
+     f"Pour toucher {fr(n)} € net par mois en 2026, il faut environ {fr(bn)} € brut dans le privé (non-cadre). Détail cadre, fonction publique, annuel et horaire.",
+     f"""<nav class="crumb"><a href="index.html">Accueil</a> › <a href="salaire-brut-net.html">Salaire brut en net</a> › <span>{fr(n)} € net</span> <em class="upd">Mis à jour : novembre 2026</em></nav>
+<h1>{fr(n)} € net en brut</h1>
+<p class="lead">Pour toucher <b>{fr(n)} € net par mois</b> avant impôt, un salarié non-cadre du privé doit gagner environ <b>{fr(bn)} € brut</b> en 2026.</p>
+<div class="card"><div class="tablewrap"><table><thead><tr><th>Statut</th><th>Brut mensuel</th><th>Brut annuel</th><th>Brut horaire</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p class="note">Net avant prélèvement à la source et avant la part salariale de la mutuelle d'entreprise. Base de 35 heures par semaine (151,67 h par mois).</p></div>
+""" + AD + f"""
+<h2>Comment passer de {fr(n)} € net au brut ?</h2>
+<p>Le salaire brut comprend les cotisations salariales, qui représentent environ {fr((bn-n)/bn*100,1)} % du brut pour un non-cadre du privé. Pour retrouver le brut, on ne peut donc pas simplement ajouter 22 % au net : il faut diviser le net par environ {fr(n/bn,3)}, ce qui donne {fr(bn)} € brut, dont {fr(bn-n)} € de cotisations.</p>
+<p>Un cadre doit gagner un peu plus, environ {fr(bc)} € brut, à cause de la cotisation APEC et, au-delà du plafond de la Sécurité sociale ({fr(PMSS)} € par mois), de cotisations de retraite plus élevées. Pour un fonctionnaire titulaire dont les primes représentent 20 % du brut, il faut environ {fr(bf)} € brut.</p>
+{smic}<p>Sur une année, {fr(n)} € net par mois représentent {fr(n*12)} € net, soit environ {fr(bn*12)} € brut annuels pour un non-cadre. C'est ce montant brut annuel qui figure en général dans les offres d'emploi.</p>
+<p>Dans l'autre sens, consultez par exemple <a href="{sal_slug(near)}.html">{fr(near)} € brut en net</a>, ou utilisez notre <a href="salaire-brut-net.html">calculateur de salaire brut en net</a> pour un calcul personnalisé.</p>
+<h2>Montants proches</h2><p>{vo}</p>
+<p class="note">Estimation indicative avec les taux de cotisations 2026 du régime général. Le montant exact dépend de votre convention collective, de votre mutuelle et de vos avantages.</p>""",
+     faq=[(f"{fr(n)} € net, ça fait combien en brut ?",f"Environ {fr(bn)} € brut par mois pour un non-cadre du privé, {fr(bc)} € pour un cadre et {fr(bf)} € pour un fonctionnaire titulaire."),
+          (f"Quel salaire brut annuel pour {fr(n)} € net par mois ?",f"Environ {fr(bn*12)} € brut par an pour un non-cadre, sur 12 mois.")]))
 
 # ---------- CAPACITÉ D'EMPRUNT ----------
 urls.append(page("capacite-emprunt", "Capacité d'emprunt 2026 : combien pouvez-vous emprunter ?",
@@ -555,7 +590,7 @@ urls.append(page("index", "SimulMalin : simulateurs gratuits salaire, notaire, c
 <div class="l"><span>Net avant impôt</span><span class="t" id="hn">–</span></div>
 <a href="salaire-brut-net.html">Calcul détaillé (mutuelle, impôt, annuel) →</a></div></section>
 """ + "".join('<h2 class="cat"'+(' id="outils"' if i==0 else '')+'>'+c+'</h2><div class="grid">'+"".join(card(t) for t in l)+'</div>' for i,(c,l) in enumerate(TOOLS)) + """
-<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?"),("impot-sur-le-revenu","Calcul impôt 2026")]) + """</p>
+<h2>Recherches populaires</h2><p class="chips">""" + "".join(f'<a href="{u}.html">{t}</a>' for u,t in [("salaire-2000-euros-brut-en-net","2 000 € brut en net"),("salaire-2500-euros-brut-en-net","2 500 € brut en net"),("salaire-3000-euros-brut-en-net","3 000 € brut en net"),("salaire-2000-euros-net-en-brut","2 000 € net en brut"),("frais-de-notaire-200000-euros","Frais de notaire 200 000 €"),("frais-de-notaire-300000-euros","Frais de notaire 300 000 €"),("emprunter-200000-euros-sur-25-ans","Emprunter 200 000 € sur 25 ans"),("emprunter-250000-euros-sur-20-ans","Emprunter 250 000 € sur 20 ans"),("capacite-emprunt","Combien puis-je emprunter ?"),("impot-sur-le-revenu","Calcul impôt 2026")]) + """</p>
 <h2>Notre méthode</h2>
 <div class="method"><p><b>Des barèmes officiels.</b> Chaque taux vient d'une source publique (Urssaf, service-public.gouv.fr, impots.gouv.fr) et la date de vérification figure en bas de page.</p>
 <p><b>Un calcul qu'on peut refaire.</b> Nous affichons le détail ligne par ligne : vous voyez d'où vient chaque euro, et vous pouvez le vérifier vous-même.</p>
