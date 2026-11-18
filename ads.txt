@@ -1,1 +1,1 @@
-# Ajouter ici la ligne fournie par Google AdSense, ex. : google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-5054730715284709, DIRECT, f08c47fec0942fa0

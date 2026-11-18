@@ -30,7 +30,7 @@ def page(slug, title, desc, body, faq=None, script=""):
 <title>{title}</title><meta name="description" content="{desc}"><link rel="canonical" href="{url}">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:type" content="website">
 <link rel="preload" href="fonts/inter-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="style.css"><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#1d5c45">{ld_html}
-<!-- Emplacement du code AdSense / Ezoic : à coller ici une fois le compte validé -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5054730715284709" crossorigin="anonymous"></script>
 </head><body>
 <header><div class="wrap"><a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Simul<span>Malin</span></a>
 <form class="search" role="search" onsubmit="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Rechercher un calcul…" aria-label="Rechercher un calcul" autocomplete="off"><div id="sr" role="listbox"></div></form>
@@ -636,5 +636,5 @@ q.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=r.querySelect
 open(os.path.join(ROOT,"search.js"),"w",encoding="utf-8").write(SEARCH_JS.replace("__PAGES__", json.dumps(PAGES, ensure_ascii=False)))
 open(os.path.join(ROOT,"sitemap.xml"),"w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"".join(f"<url><loc>{u}</loc></url>" for u in urls)+"</urlset>\n")
 open(os.path.join(ROOT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n")
-open(os.path.join(ROOT,"ads.txt"),"w").write("# Ajouter ici la ligne fournie par Google AdSense, ex. : google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0\n")
+open(os.path.join(ROOT,"ads.txt"),"w").write("google.com, pub-5054730715284709, DIRECT, f08c47fec0942fa0\n")
 print("ok", len(urls))
